@@ -1,0 +1,49 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.sw*
+*~
+
+# Build
+target/
+dist/
+node_modules/
+build/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+.project
+.classpath
+.c9/
+*.log
+
+# Runtime
+*.pid
+*.seed
+*.pid.lock
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Sensitive Config Files
+ac_backend/src/main/resources/application.yaml
+ac_backend/src/main/resources/application-*.yaml
+
+# Uploads
+uploads/
+
+# Node
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Database
+dat_ve_xem_phim.sql

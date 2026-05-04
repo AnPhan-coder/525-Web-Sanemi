@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500&family=Montserrat+Alternates:wght@600&display=swap");
+
+@theme {
+  --font-display: "Montserrat Alternates", sans-serif;
+  --font-body: "Be Vietnam Pro", sans-serif;
+  --color-neutral-850: #1f1f1f;
+}
+
+@layer base {
+  body {
+    @apply bg-neutral-900 text-neutral-400 font-body antialiased;
+    padding: 0;
+    margin: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold text-neutral-200;
+  }
+}
+
+@layer components {
+  .slick-prev:before,
+  .slick-next:before {
+    @apply text-neutral-400;
+  }
+
+  .screen {
+    @apply w-3/4 h-1 bg-yellow-500 mb-12 mx-auto rounded-full;
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.2);
+  }
+
+  .seat {
+    @apply w-10 h-10 bg-neutral-800 border border-neutral-600 rounded-md flex items-center justify-center text-xs text-neutral-400 cursor-pointer transition-all duration-200;
+  }
+
+  .seat:hover:not(.booked):not(.selected) {
+    @apply border-yellow-500 text-yellow-500;
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+    transform: scale(1.1);
+  }
+
+  .seat.selected {
+    @apply bg-yellow-500 text-neutral-900 border-yellow-500 font-bold;
+    box-shadow: 0 0 15px rgba(234, 179, 8, 0.6);
+  }
+
+  .seat.vip {
+    @apply border-red-500 text-red-500 font-semibold;
+  }
+
+  .seat.vip:hover:not(.booked):not(.selected) {
+    @apply bg-red-500/10;
+  }
+
+  .seat.couple {
+    @apply border-pink-500 text-pink-500 font-semibold w-24;
+  }
+
+  .seat.booked {
+    @apply bg-neutral-700 border-neutral-700 text-neutral-600 cursor-not-allowed;
+  }
+}
+
+@layer utilities {
+  .banner-bg-effect {
+    filter: grayscale(100%) brightness(0.4);
+  }
+
+  .footer-heading::after {
+    content: '';
+    @apply absolute left-0 -bottom-2 w-8 h-0.5 bg-yellow-500;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #171717;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}
