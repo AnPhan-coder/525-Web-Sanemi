@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import axios from "axios";
+import { bookingService } from "../services/bookingService";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useApiCall } from "./useApiCall";
@@ -27,7 +27,7 @@ export const useBooking = (showtimeId) => {
     setUser(JSON.parse(storedUser));
 
     execute(
-      () => axios.get(`http://localhost:8080/api/bookings/seats?showtimeId=${showtimeId}`),
+      () => bookingService.getSeatsByShowtime(showtimeId),
       {
         onSuccess: (res) => {
           const raw = res.data.result || [];
@@ -148,7 +148,7 @@ export const useBooking = (showtimeId) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axios.post("http://localhost:8080/api/bookings", {
+          const response = await bookingService.createBooking({
             userId: user.id,
             showtimeId: Number(showtimeId),
             seatIds: selectedSeats,

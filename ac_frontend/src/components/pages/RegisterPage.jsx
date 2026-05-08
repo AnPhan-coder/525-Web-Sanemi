@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axiosClient from "../../api/axiosClient"; 
+import { authService } from "../../services/authService"; 
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { Eye, EyeOff, UserPlus } from "lucide-react"; 
@@ -34,7 +34,7 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
-      const response = await axiosClient.post("/auth/register", {
+      const response = await authService.register({
         name: formData.name,
         email: formData.email,
         password: formData.password

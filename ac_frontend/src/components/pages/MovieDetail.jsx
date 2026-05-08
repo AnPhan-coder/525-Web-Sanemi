@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { movieService } from "../../services/movieService";
+import { showtimeService } from "../../services/showtimeService";
 import { format, isSameDay, compareAsc } from "date-fns";
 import { vi } from "date-fns/locale";
 import {
@@ -35,8 +36,8 @@ const MovieDetail = () => {
     await execute(
       async () => {
         const [movieRes, showRes] = await Promise.all([
-          axios.get(`http://localhost:8080/api/movies/${id}`),
-          axios.get(`http://localhost:8080/api/showtimes/movie?movieId=${id}`),
+          movieService.getMovieById(id),
+          showtimeService.getShowtimesByMovie(id),
         ]);
 
         setMovie(movieRes.data.result || movieRes.data);

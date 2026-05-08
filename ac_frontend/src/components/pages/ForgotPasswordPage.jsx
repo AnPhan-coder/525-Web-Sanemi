@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { authService } from "../../services/authService";
 import Swal from "sweetalert2";
 const ForgotPasswordPage = () => {
   const [step, setStep] = useState(1);
@@ -20,7 +20,7 @@ const ForgotPasswordPage = () => {
     setMsg({ type: "", content: "" });
 
     try {
-      await axios.post(`http://localhost:8080/api/auth/forgot-password?email=${email}`);
+      await authService.forgotPassword(email);
       
       setMsg({ type: "success", content: "Mã OTP đã được gửi. Vui lòng kiểm tra email!" });
       setStep(2); 
@@ -44,7 +44,7 @@ const ForgotPasswordPage = () => {
     setMsg({ type: "", content: "" });
 
     try {
-      await axios.post("http://localhost:8080/api/auth/reset-password", {
+      await authService.resetPassword({
         email: email,
         otp: otp,
         newPassword: newPassword

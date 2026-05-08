@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { roomService } from "../../services/roomService";
 import RoomForm from "./RoomForm";
 import SeatDesigner from "./SeatDesigner";
 import Swal from "sweetalert2";
@@ -15,7 +15,7 @@ const ManageRooms = () => {
   const { loading, execute } = useApiCall();
 
   const loadRooms = async () => {
-    await execute(() => axios.get("http://localhost:8080/api/rooms"), {
+    await execute(() => roomService.getRooms(), {
       onSuccess: (res) => {
         setRooms(res.data.result || []);
       },
@@ -43,7 +43,7 @@ const ManageRooms = () => {
 
     if (result.isConfirmed) {
       await execute(
-        () => axios.delete(`http://localhost:8080/api/rooms/${id}`),
+        () => roomService.deleteRoom(id),
         {
           successMessage: "Đã xóa phòng thành công!",
           onSuccess: () => loadRooms(),

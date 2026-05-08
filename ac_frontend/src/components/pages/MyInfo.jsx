@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axiosClient from "../../api/axiosClient";
+import { userService } from "../../services/userService";
 import { toast } from "react-toastify";
-import { Save, Mail, User } from "lucide-react";
+import { Save, User } from "lucide-react";
 
 const MyInfo = ({ user, onUpdate }) => {
   const [loading, setLoading] = useState(false);
@@ -39,7 +39,7 @@ const MyInfo = ({ user, onUpdate }) => {
           ...(isChangePassword && { password: formData.password })
       };
 
-      await axiosClient.put(`/users/${formData.id}`, payload);
+      await userService.updateProfile(formData.id, payload);
       
       toast.success("Cập nhật hồ sơ thành công!");
       if (onUpdate) {

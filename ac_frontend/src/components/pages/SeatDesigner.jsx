@@ -1,46 +1,11 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { seatService } from "../../services/roomService";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { ArrowLeft, Save, CheckCircle2 } from "lucide-react";
+import SeatIcon from "./SeatIcon";
 
-const SeatIcon = ({ type, isHidden, label }) => {
-  if (isHidden) return <div className="w-8 h-8 md:w-10 md:h-10 opacity-0"></div>;
 
-  let mainColor = "fill-neutral-600";
-  let armColor = "fill-neutral-700";
-
-  if (type === "VIP") { mainColor = "fill-red-600"; armColor = "fill-red-700"; }
-  if (type === "COUPLE") { mainColor = "fill-pink-600"; armColor = "fill-pink-700"; }
-
-  const hoverClass = "group-hover:brightness-110 transition-all duration-200 drop-shadow-sm";
-
-  if (type === "COUPLE") {
-    return (
-      <div className={`relative w-20 h-8 md:w-24 md:h-10 flex justify-center items-center cursor-pointer group`}>
-        <svg width="100%" height="100%" viewBox="0 0 96 40" className={hoverClass}>
-          <path d="M10 4 H86 Q90 4 90 15 V25 H6 V15 Q6 4 10 4 Z" className={mainColor} />
-          <rect x="6" y="24" width="84" height="12" rx="4" className={mainColor} />
-          <path d="M2 14 H8 V36 H2 V14 Z" className={armColor} rx="2" />
-          <path d="M88 14 H94 V36 H88 V14 Z" className={armColor} rx="2" />
-        </svg>
-        <span className="absolute text-white text-[10px] font-bold select-none pointer-events-none opacity-90 mt-1">{label}</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`relative w-8 h-8 md:w-10 md:h-10 flex justify-center items-center cursor-pointer group`}>
-      <svg width="100%" height="100%" viewBox="0 0 40 40" className={hoverClass}>
-        <path d="M6 4 H34 Q36 4 36 12 V24 H4 V12 Q4 4 6 4 Z" className={mainColor} />
-        <rect x="4" y="22" width="32" height="12" rx="3" className={mainColor} />
-        <rect x="0" y="14" width="4" height="20" rx="2" className={armColor} />
-        <rect x="36" y="14" width="4" height="20" rx="2" className={armColor} />
-      </svg>
-      <span className="absolute text-white text-[10px] font-bold select-none pointer-events-none opacity-90">{label}</span>
-    </div>
-  );
-};
 
 const SeatDesigner = ({ room, onBack }) => {
   const [seats, setSeats] = useState([]);
@@ -51,7 +16,7 @@ const SeatDesigner = ({ room, onBack }) => {
 
   const loadSeats = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/seats?roomId=${room.id}`);
+      const res = await seatService.getSeatsByRoomId(room.id);
       const sortedSeats = res.data.result?.sort((a, b) => 
         a.rowIndex === b.rowIndex ? a.colIndex - b.colIndex : a.rowIndex - b.rowIndex
       ) || [];
@@ -102,7 +67,7 @@ const SeatDesigner = ({ room, onBack }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.post("http://localhost:8080/api/seats/batch-update", seats);
+          await seatService.batchUpdateSeats(seats);
           toast.success("✅ Đã lưu sơ đồ thành công!");
           setIsDirty(false);
         } catch (error) {
@@ -124,11 +89,13 @@ const SeatDesigner = ({ room, onBack }) => {
         if (seat && seats.find((s) => s.rowIndex === r && s.colIndex === c - 1)?.type === "COUPLE" && seats.find((s) => s.rowIndex === r && s.colIndex === c - 1)?.active) continue;
 
         rowCells.push(
-          <div key={`${r}-${c}`} onClick={() => seat && handleCellClick(r, c)} className="m-0.5 md:m-1">
+          <div key={`${r}-${c}`} className="m-0.5 md:m-1">
             <SeatIcon 
               type={seat?.type || "NORMAL"} 
               isHidden={!seat?.active} 
               label={seat?.code ? seat.code.substring(1) : ""} 
+              onClick={() => seat && handleCellClick(r, c)}
+              className={seat?.type === "COUPLE" ? "w-16 h-8 md:w-20 md:h-10" : "w-8 h-8 md:w-10 md:h-10"}
             />
           </div>
         );

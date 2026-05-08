@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "../../api/axiosClient";
+import { userService } from "../../services/userService";
 import {
   BarChart,
   Bar,
@@ -20,8 +20,7 @@ const AdminStats = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axiosClient
-      .get("/admin/stats")
+    userService.getAdminStats()
       .then((res) => {
         setStats(res.data.result);
         setLoading(false);

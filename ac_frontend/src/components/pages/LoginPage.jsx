@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { toast } from "react-toastify";
 import { Eye, EyeOff, LogIn } from "lucide-react"; 
-import axiosClient from "../../api/axiosClient"; 
+import { authService } from "../../services/authService"; 
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -17,7 +17,7 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await axiosClient.post("/auth/login", {
+      const response = await authService.login({
         email: email,
         password: password,
       });
@@ -63,7 +63,7 @@ const LoginPage = () => {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const response = await axiosClient.post("/auth/google", {
+      const response = await authService.loginWithGoogle({
         token: credentialResponse.credential
       });
 

@@ -9,7 +9,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useApiCall } from "../../hooks/useApiCall";
-import axiosClient from "../../api/axiosClient";
+import { showtimeService } from "../../services/showtimeService";
 
 const ShowtimeForm = ({ movies, rooms, allShowtimes, onBack, onSuccess }) => {
   const { loading, execute } = useApiCall();
@@ -101,27 +101,28 @@ const ShowtimeForm = ({ movies, rooms, allShowtimes, onBack, onSuccess }) => {
 
     await execute(
       () =>
-        axiosClient.post(
-          formData.isAutoGenerate
-            ? "/admin/showtimes/auto-generate"
-            : "/admin/showtimes",
-          {
-            movieId: Number(formData.movieId),
-            roomId: Number(formData.roomId),
-            startTime: formData.startTime,
-            basePrice: Number(formData.basePrice),
-          }
-        ),
+        formData.isAutoGenerate
+          ? showtimeService.autoGenerateShowtimes({
+              movieId: Number(formData.movieId),
+              roomId: Number(formData.roomId),
+              startTime: formData.startTime,
+              basePrice: Number(formData.basePrice),
+            })
+          : showtimeService.createShowtime({
+              movieId: Number(formData.movieId),
+              roomId: Number(formData.roomId),
+              startTime: formData.startTime,
+              basePrice: Number(formData.basePrice),
+            }),
       {
         onSuccess: (res) => {
           const result = res.data?.result;
 
           if (formData.isAutoGenerate) {
             const createdCount = Array.isArray(result) ? result.length : 0;
-            console.log("result showtimes:", res.data);
             if (createdCount === 0) {
               toast.error(
-                "⚠️ Không thể sinh lịch chiếu nào! (Có thể do trùng giờ hoặc quá giờ đóng cửa)"
+                "Không thể sinh lịch chiếu nào! (Có thể do trùng giờ hoặc quá giờ đóng cửa)"
               );
               return;
             }

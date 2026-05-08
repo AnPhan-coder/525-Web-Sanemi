@@ -1,4 +1,3 @@
-// src/pages/Profile/UserProfileMain.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, History, LogOut } from "lucide-react";
@@ -11,7 +10,6 @@ const UserProfileMain = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
 
     if (!storedUser) {

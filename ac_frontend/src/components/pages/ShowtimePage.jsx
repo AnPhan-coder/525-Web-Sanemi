@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
+import { showtimeService } from "../../services/showtimeService";
 import { format, addDays, isSameDay } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Calendar, Clock, MapPin } from "lucide-react";
@@ -19,7 +19,7 @@ const ShowtimePage = () => {
 
   useEffect(() => {
     const fetchShowtimes = async () => {
-      await execute(() => axios.get("http://localhost:8080/api/showtimes"), {
+      await execute(() => showtimeService.getShowtimes(), {
         onSuccess: (res) => {
           setShowtimes(res.data.result || res.data);
         },

@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axiosClient from "../../api/axiosClient";
+import { bookingService } from "../../services/bookingService";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import {
   Clock,
-  QrCode,
   ArrowLeft,
   CreditCard,
   ShieldCheck,
@@ -45,7 +44,7 @@ const PaymentPage = () => {
 
     const fetchBookingDetail = async () => {
       try {
-        const res = await axiosClient.get(`/bookings/${bookingId}`);
+        const res = await bookingService.getBookingById(bookingId);
         if (res.data.result) {
           const data = res.data.result;
           setBooking(data);
@@ -99,7 +98,7 @@ const PaymentPage = () => {
 
       if (booking?.status === "PAID") return;
 
-      await axiosClient.post(`/bookings/cancel/${bookingId}`);
+      await bookingService.cancelBooking(bookingId);
 
       if (!isAuto) {
         toast.info("Đã hủy giữ ghế.");
@@ -130,9 +129,7 @@ const PaymentPage = () => {
     }
     setLoading(true);
     try {
-      const res = await axiosClient.post(
-        `/bookings/payment/vnpay/${bookingId}`
-      );
+      const res = await bookingService.createVnpayPayment(bookingId);
       const paymentUrl = res.data.result || res.data;
       if (paymentUrl) {
         window.location.href = paymentUrl;
@@ -147,39 +144,6 @@ const PaymentPage = () => {
     }
   };
 
-  const handleManualPayment = () => {
-    Swal.fire({
-      title: "Xác nhận đã chuyển khoản?",
-      text: "Hệ thống sẽ kiểm tra giao dịch của bạn.",
-      icon: "question",
-      background: "#171717",
-      color: "#fff",
-      showCancelButton: true,
-      confirmButtonColor: "#16A34A",
-      confirmButtonText: "Đã chuyển tiền",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        setLoading(true);
-        try {
-          await axiosClient.post(`/bookings/${bookingId}/pay`);
-          Swal.fire({
-            title: "Thành công!",
-            text: "Vé đã được gửi mail.",
-            icon: "success",
-            background: "#171717",
-            color: "#fff",
-            confirmButtonColor: "#EAB308",
-          }).then(() => navigate("/"));
-        } catch (error) {
-          toast.error(
-            "Lỗi: " + (error.response?.data?.message || "Thanh toán thất bại")
-          );
-        } finally {
-          setLoading(false);
-        }
-      }
-    });
-  };
 
   if (pageLoading)
     return (

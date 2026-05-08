@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { movieService } from "../../services/movieService";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -19,7 +19,7 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await execute(() => axios.get("http://localhost:8080/api/movies"), {
+      await execute(() => movieService.getMovies(), {
         onSuccess: (res) => {
           const data = res.data;
           setActiveMovies(data.filter((m) => m.status === "active"));

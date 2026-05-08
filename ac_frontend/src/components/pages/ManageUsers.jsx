@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import axiosClient from "../../api/axiosClient";
+import { userService } from "../../services/userService";
 import Swal from "sweetalert2";
 import { format } from "date-fns";
 import { useApiCall } from "../../hooks/useApiCall";
@@ -39,7 +39,7 @@ const ManageUsers = () => {
   }, []);
 
   const loadData = async () => {
-    await execute(() => axiosClient.get("/admin/users"), {
+    await execute(() => userService.getUsers(), {
       onSuccess: (res) => setUsers(res.data.result || []),
       errorMessage: "Lỗi tải danh sách người dùng",
     });
@@ -69,7 +69,7 @@ const ManageUsers = () => {
       confirmButtonText: `Đồng ý ${actionText}`,
     }).then(async (res) => {
       if (res.isConfirmed) {
-        await execute(() => axiosClient.put(`/admin/users/${id}/status`), {
+        await execute(() => userService.updateUserStatus(id, !currentStatus), {
           successMessage: `Đã ${actionText} thành công!`,
           onSuccess: () => loadData(),
         });
@@ -95,10 +95,7 @@ const ManageUsers = () => {
     }).then(async (res) => {
       if (res.isConfirmed) {
         await execute(
-          () =>
-            axiosClient.put(`/admin/users/${user.id}/role`, null, {
-              params: { role: newRole },
-            }),
+            () => userService.updateUserRole(user.id, newRole),
           {
             successMessage: "Cập nhật quyền thành công!",
             onSuccess: () => loadData(),
@@ -113,7 +110,7 @@ const ManageUsers = () => {
     setLoadingHistory(true);
     setHistoryList([]);
     try {
-      const res = await axiosClient.get(`/admin/users/${user.id}/bookings`);
+      const res = await userService.getUserBookings(user.id);
       const data = res.data.result || [];
       const sortedData = data.sort((a, b) => new Date(b.bookingTime) - new Date(a.bookingTime));
       
@@ -340,12 +337,12 @@ const ManageUsers = () => {
                       <div className="text-right">
                         <span
                           className={`text-xs font-bold px-2 py-1 rounded border ${
-                            booking.status === "paid"
+                            booking.status.toLowerCase() === "paid"
                               ? "bg-green-900/20 border-green-800 text-green-500"
                               : "bg-red-900/20 border-red-800 text-red-500"
                           }`}
                         >
-                          {booking.status === "paid"
+                          {booking.status.toLowerCase() === "paid"
                             ? "ĐÃ THANH TOÁN"
                             : booking.status}
                         </span>

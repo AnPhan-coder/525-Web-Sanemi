@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
-import axiosClient from "../../api/axiosClient";
+import { movieService } from "../../services/movieService";
+import { roomService } from "../../services/roomService";
+import { showtimeService } from "../../services/showtimeService";
 import Swal from "sweetalert2";
 import { format } from "date-fns";
 import { Calendar, Plus, Trash2, Search, Armchair, Film } from "lucide-react";
@@ -39,9 +41,9 @@ const ManageShowtimes = () => {
     await fetchData(
       async () => {
         const [resMovies, resRooms, resShows] = await Promise.all([
-          axiosClient.get("/movies"),
-          axiosClient.get("/rooms"),
-          axiosClient.get("/admin/showtimes"),
+          movieService.getMovies(),
+          roomService.getRooms(),
+          showtimeService.getAdminShowtimes(),
         ]);
 
         setMovies(resMovies.data.result || resMovies.data || []);
@@ -67,7 +69,7 @@ const ManageShowtimes = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         await executeDelete(
-          async () => await axiosClient.delete(`/admin/showtimes/${id}`),
+          async () => await showtimeService.deleteShowtime(id),
           {
             successMessage: "Đã xóa suất chiếu thành công!",
             onSuccess: () => loadData(),

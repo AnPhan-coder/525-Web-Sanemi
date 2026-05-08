@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { movieService } from "../../services/movieService";
 import MovieForm from "./MovieForm";
 import Swal from "sweetalert2";
 import { useSearchParams } from "react-router-dom";
@@ -38,7 +38,7 @@ const MovieList = () => {
   }, [keywordFromUrl]);
 
   const loadGenres = async () => {
-    await execute(() => axios.get("http://localhost:8080/api/genres"), {
+    await execute(() => movieService.getGenres(), {
       onSuccess: (res) => setGenres(res.data),
       showSuccessToast: false,
     });
@@ -55,7 +55,7 @@ const MovieList = () => {
     if (currentFilters.genreId) params.genreId = currentFilters.genreId;
 
     await execute(
-      () => axios.get("http://localhost:8080/api/movies/search", { params }),
+      () => movieService.searchMovies(params),
       {
         onSuccess: (res) => setMovies(res.data.result || res.data),
         showSuccessToast: false,
@@ -91,7 +91,7 @@ const MovieList = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         await execute(
-          () => axios.delete(`http://localhost:8080/api/movies/${id}`),
+          () => movieService.deleteMovie(id),
           {
             successMessage: "Đã xóa phim thành công!",
             onSuccess: () => loadMovies(),

@@ -1,22 +1,21 @@
-// src/pages/Profile/MyBookings.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosClient from "../../api/axiosClient";
-import { Calendar, Clock, MapPin, QrCode, CreditCard, XCircle, AlertCircle } from "lucide-react";
+import { bookingService } from "../../services/bookingService";
+import { Clock, MapPin, QrCode, CreditCard, XCircle } from "lucide-react";
 import Swal from "sweetalert2";
+import { formatCurrency } from "../../utils/bookingHelpers";
 
 const MyBookings = ({ user }) => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("ALL"); // ALL, PAID, PENDING, CANCELLED
+  const [activeTab, setActiveTab] = useState("ALL");
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
     const fetchBookings = async () => {
       try {
-        const res = await axiosClient.get(`/bookings/my-bookings?userId=${user.id}`);
-        // Đảm bảo lấy đúng mảng dữ liệu
+        const res = await bookingService.getMyBookings(user.id);
         setBookings(res.data.result || res.data || []);
       } catch (error) {
         console.error("Lỗi tải vé:", error);
@@ -27,16 +26,14 @@ const MyBookings = ({ user }) => {
     fetchBookings();
   }, [user]);
 
-  // Hàm lọc vé theo Tab
   const getFilteredBookings = () => {
     if (activeTab === "ALL") return bookings;
-    // Lưu ý: So sánh status phải khớp với Enum Backend (thường là uppercase hoặc lowercase)
     return bookings.filter(b => b.status?.toLowerCase() === activeTab.toLowerCase());
   };
 
   // Hàm mở QR Code
   const handleShowQR = (booking) => {
-    const qrData = `BOOKING_ID:${booking.id}`; // Dữ liệu để tạo QR
+    const qrData = `BOOKING_ID:${booking.id}`; 
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrData}`;
 
     Swal.fire({
@@ -56,7 +53,6 @@ const MyBookings = ({ user }) => {
   };
 
   const formatDate = (dateString) => new Date(dateString).toLocaleString("vi-VN");
-  const formatCurrency = (val) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(val);
 
   if (loading) return <div className="text-center py-10 text-neutral-500">Đang tải dữ liệu vé...</div>;
 
@@ -72,9 +68,9 @@ const MyBookings = ({ user }) => {
       <div className="flex gap-2 overflow-x-auto pb-4 mb-6 border-b border-neutral-700">
         {[
             { id: "ALL", label: "Tất cả" },
-            { id: "PENDING", label: "Chờ thanh toán" }, // Backend: UNPAID/PENDING
+            { id: "PENDING", label: "Chờ thanh toán" }, 
             { id: "PAID", label: "Đã thanh toán" },
-            { id: "CANCELLED", label: "Đã hủy" } // Backend: CANCELLED
+            { id: "CANCELLED", label: "Đã hủy" }
         ].map((tab) => (
             <button
                 key={tab.id}

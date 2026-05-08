@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "../../api/axiosClient";
+import { movieService } from "../../services/movieService";
 import CreatableSelect from "react-select/creatable";
 import { Upload, Link as LinkIcon, Save, ArrowLeft } from "lucide-react";
 import { useApiCall } from "../../hooks/useApiCall";
@@ -31,8 +31,8 @@ const MovieForm = ({ movieId, onBack }) => {
       await execute(
         async () => {
           const [resGenres, resActors] = await Promise.all([
-            axiosClient.get("/genres"),
-            axiosClient.get("/actors"),
+            movieService.getGenres(),
+            movieService.getActors(),
           ]);
           setGenreOptions(
             resGenres.data.map((g) => ({ value: g.id, label: g.name }))
@@ -42,7 +42,7 @@ const MovieForm = ({ movieId, onBack }) => {
           );
 
           if (isEdit) {
-            const resMovie = await axiosClient.get(`/movies/${movieId}`);
+            const resMovie = await movieService.getMovieById(movieId);
             const m = resMovie.data.result;
             setFormData({
               title: m.title,
@@ -73,8 +73,8 @@ const MovieForm = ({ movieId, onBack }) => {
     e.preventDefault();
     await execute(
       async () => {
-        if (isEdit) await axiosClient.put(`/movies/${movieId}`, formData);
-        else await axiosClient.post("/movies", formData);
+        if (isEdit) await movieService.updateMovie(movieId, formData);
+        else await movieService.createMovie(formData);
       },
       {
         successMessage: isEdit
@@ -93,10 +93,7 @@ const MovieForm = ({ movieId, onBack }) => {
     form.append("file", file);
 
     await execute(
-      () =>
-        axiosClient.post("/upload", form, {
-          headers: { "Content-Type": "multipart/form-data" },
-        }),
+        movieService.uploadFile(form),
       {
         onSuccess: (res) => {
           const url = res.result || res.data?.result;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import { roomService } from "../../services/roomService";
 import { toast } from "react-toastify";
 
 const RoomForm = ({ roomData, onBack }) => {
@@ -63,12 +63,12 @@ const RoomForm = ({ roomData, onBack }) => {
     e.preventDefault();
     try {
       if (isEdit) {
-        await axios.put(`http://localhost:8080/api/rooms/${roomData.id}`, {
+        await roomService.updateRoom(roomData.id, {
           name: formData.name,
         });
         toast.success("Cập nhật tên phòng thành công!");
       } else {
-        await axios.post("http://localhost:8080/api/rooms", formData);
+        await roomService.createRoom(formData);
         toast.success("Tạo phòng thành công!");
       }
       onBack();

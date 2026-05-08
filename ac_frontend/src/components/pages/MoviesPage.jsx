@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { movieService } from "../../services/movieService";
 import { Link, useSearchParams } from "react-router-dom"; 
 import { Search, Film, Calendar, Ticket } from "lucide-react";
 import { useApiCall } from "../../hooks/useApiCall";
@@ -19,7 +19,7 @@ const MoviesPage = () => {
 
   useEffect(() => {
     const fetchMovies = async () => {
-      await execute(() => axios.get("http://localhost:8080/api/movies"), {
+      await execute(() => movieService.getMovies(), {
         onSuccess: (res) => {
           const data = res.data.result || res.data; 
           setMovies(data);

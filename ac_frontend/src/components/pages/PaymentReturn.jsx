@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import axiosClient from "../../api/axiosClient";
+import { bookingService } from "../../services/bookingService";
 import { CheckCircle, XCircle, Home } from "lucide-react";
 
 const PaymentReturn = () => {
@@ -12,7 +12,7 @@ const PaymentReturn = () => {
     const verifyPayment = async () => {
       try {
         const queryString = searchParams.toString();
-        const res = await axiosClient.get(`/bookings/payment/vnpay-callback?${queryString}`);
+        const res = await bookingService.vnpayCallback(queryString);
         
         if (res.data.result === 1) {
           setStatus("SUCCESS");
@@ -30,7 +30,7 @@ const PaymentReturn = () => {
     } else {
         navigate("/");
     }
-  }, []);
+  },[searchParams, navigate]);
 
   return (
     <div className="min-h-screen bg-neutral-900 flex items-center justify-center px-4 text-white">
