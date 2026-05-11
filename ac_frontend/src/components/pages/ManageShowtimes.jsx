@@ -22,6 +22,7 @@ const ManageShowtimes = () => {
   const [searchDate, setSearchDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const [timeFilter, setTimeFilter] = useState("UPCOMING");
 
   const { loading: loadingData, execute: fetchData } = useApiCall();
   const { execute: executeDelete } = useApiCall();
@@ -80,6 +81,7 @@ const ManageShowtimes = () => {
   };
 
   const groupedShowtimes = useMemo(() => {
+    const now = new Date();
     const groups = {};
     showtimes.forEach((show) => {
       const movieName = show.movie?.title?.toLowerCase() || "";
@@ -98,6 +100,10 @@ const ManageShowtimes = () => {
         if (!isDateMatch) return;
       }
 
+      const showTime = new Date(show.startTime);
+      if (timeFilter === "UPCOMING" && showTime < now) return;
+      if (timeFilter === "PAST" && showTime >= now) return;
+
       const mId = show.movie?.id;
       if (!mId) return;
 
@@ -107,7 +113,7 @@ const ManageShowtimes = () => {
       groups[mId].shows.push(show);
     });
     return Object.values(groups);
-  }, [showtimes, searchDate, debouncedSearchTerm, searchTerm]);
+  }, [showtimes, searchDate, debouncedSearchTerm, searchTerm, timeFilter]);
 
   if (view === "CREATE") {
     return (
@@ -142,6 +148,30 @@ const ManageShowtimes = () => {
         </div>
 
         <div className="flex items-center gap-3 flex-wrap w-full md:w-auto">
+          {/* Toggle Sắp tới / Lịch sử */}
+          <div className="bg-neutral-900 p-1 rounded-lg flex border border-neutral-800">
+            <button
+              onClick={() => setTimeFilter("UPCOMING")}
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                timeFilter === "UPCOMING"
+                  ? "bg-green-700/40 text-green-400 border border-green-700/50"
+                  : "text-neutral-500 hover:text-neutral-300"
+              }`}
+            >
+              Sắp tới
+            </button>
+            <button
+              onClick={() => setTimeFilter("PAST")}
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                timeFilter === "PAST"
+                  ? "bg-neutral-700 text-neutral-200 border border-neutral-600"
+                  : "text-neutral-500 hover:text-neutral-300"
+              }`}
+            >
+              Lịch sử
+            </button>
+          </div>
+
           <div className="relative group flex-1 md:flex-none">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search
