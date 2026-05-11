@@ -58,7 +58,7 @@ const AdminDashboard = () => {
             </nav>
 
             <div className="mt-auto pt-8 text-xs text-neutral-500 font-body">
-              AnCinema Admin System <br/> v1.0.2
+              Sanemi Admin System <br/> v1.0.2
             </div>
           </div>
         </aside>

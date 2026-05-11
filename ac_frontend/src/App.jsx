@@ -5,9 +5,9 @@ import "react-toastify/dist/ReactToastify.css";
 
 import HomePage from './components/pages/HomePage';
 import LoginPage from './components/pages/LoginPage';
-import MoviesPage from "./components/pages/MoviesPage"; 
+import MoviesPage from "./components/pages/MoviesPage";
 import ShowtimePage from "./components/pages/ShowtimePage";
-import MovieDetail from './components/pages/MovieDetail'; 
+import MovieDetail from './components/pages/MovieDetail';
 import BookingPage from './components/pages/BookingPage';
 import ScrollToTop from './components/pages/ScrollToTop';
 import RegisterPage from './components/pages/RegisterPage';
@@ -37,7 +37,7 @@ const AppContent = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/movie/:id" element={<MovieDetail />} />
+          <Route path="/movie/:id" element={<MovieDetail />} /> 
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/movies" element={<MoviesPage />} />
           <Route path="/schedule" element={<ShowtimePage />} />

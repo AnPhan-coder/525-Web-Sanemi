@@ -13,10 +13,32 @@ import {
   Film,
   Info,
   ChevronLeft,
+  Star,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 import { useApiCall } from "../../hooks/useApiCall";
 import { LoadingSkeleton } from "./LoadingSpinner";
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      delayChildren: 0.3, 
+      staggerChildren: 0.1, 
+    },
+  },
+};
+
+const fadeUpVariant = {
+  hidden: { y: 20, opacity: 0 },
+  show: { 
+    y: 0, 
+    opacity: 1, 
+    transition: { duration: 0.5, ease: "easeOut" } 
+  },
+};
 
 const MovieDetail = () => {
   const { id } = useParams();
@@ -106,7 +128,7 @@ const MovieDetail = () => {
   return (
     <div className="bg-neutral-900 min-h-screen font-body text-neutral-300 pb-20">
       {/* HERO SECTION (Banner + Info) */}
-      <div className="relative w-full h-[500px] md:h-[600px] overflow-hidden">
+      <div className="relative w-full min-h-[100vh] md:min-h-[600px] overflow-hidden flex items-center">
         {/* Blurred Background */}
         <div
           className="absolute inset-0 bg-cover bg-center blur-xl opacity-30"
@@ -114,25 +136,31 @@ const MovieDetail = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/60 to-transparent" />
 
-        <div className="absolute inset-0 container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 pt-20">
+        <div className="relative z-10 container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 pt-28 pb-20 md:py-20 w-full">
           {/* Poster */}
           <div className="relative shrink-0 group">
-            <img
+            <motion.img
+              layoutId={`poster-${movie.id}`}
               src={movie.posterUrl}
               alt={movie.title}
-              className="w-64 md:w-80 rounded-xl shadow-2xl border-2 border-neutral-700 group-hover:border-red-600 transition-colors duration-500 z-10 relative"
+              className="w-48 sm:w-56 md:w-72 aspect-[2/3] object-cover rounded-xl shadow-2xl border-2 border-neutral-700 group-hover:border-red-600 transition-colors duration-500 z-10 relative"
             />
             {/* Glow Effect */}
             <div className="absolute inset-0 bg-red-600 blur-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-xl" />
           </div>
 
           {/* Movie Info */}
-          <div className="max-w-2xl text-center md:text-left space-y-4 z-10">
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white uppercase leading-tight">
+          <motion.div 
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="max-w-2xl text-center md:text-left space-y-4 z-10"
+          >
+            <motion.h1 variants={fadeUpVariant} className="text-4xl md:text-5xl font-display font-bold text-white uppercase leading-tight">
               {movie.title}
-            </h1>
+            </motion.h1>
 
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm font-medium">
+            <motion.div variants={fadeUpVariant} className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm font-medium">
               <span className="px-3 py-1 bg-red-600 text-white rounded text-xs font-bold shadow-lg shadow-red-900/20">
                 {movie.status === "active" ? "ĐANG CHIẾU" : "SẮP CHIẾU"}
               </span>
@@ -140,9 +168,12 @@ const MovieDetail = () => {
                 <Clock size={14} className="text-red-500" /> {movie.duration}{" "}
                 phút
               </span>
-            </div>
+              <span className="flex items-center gap-1 bg-neutral-800 px-3 py-1 rounded border border-neutral-700">
+                <Star size={14} className="text-yellow-400 fill-yellow-400" /> 4.5/5
+              </span>
+            </motion.div>
 
-            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+            <motion.div variants={fadeUpVariant} className="flex flex-wrap gap-2 justify-center md:justify-start">
               {movie.genres?.map((g) => (
                 <span
                   key={g.id}
@@ -151,9 +182,9 @@ const MovieDetail = () => {
                   {g.name}
                 </span>
               ))}
-            </div>
+            </motion.div>
 
-            <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            <motion.div variants={fadeUpVariant} className="pt-4 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
               <button
                 onClick={() =>
                   document
@@ -175,14 +206,19 @@ const MovieDetail = () => {
                   <Play size={20} fill="currentColor" /> Xem Trailer
                 </a>
               )}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
 
       {/* MAIN CONTENT (Description + Booking) */}
       <div className="container mx-auto px-4 -mt-10 relative z-20 max-w-5xl">
-        <div className="space-y-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.6 }}
+          className="space-y-8"
+        >
           {/* Description */}
           <section className="bg-neutral-800/50 p-6 md:p-8 rounded-2xl border border-neutral-800 backdrop-blur-sm">
             <h3 className="text-xl font-display font-bold text-white mb-4 flex items-center gap-2">
@@ -282,7 +318,7 @@ const MovieDetail = () => {
               </>
             )}
           </section>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

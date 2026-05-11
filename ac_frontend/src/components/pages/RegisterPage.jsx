@@ -43,7 +43,7 @@ const RegisterPage = () => {
       if (response.data.code === 1000) {
         Swal.fire({
             title: "Đăng ký thành công!",
-            text: "Chào mừng bạn đến với AnCinema. Vui lòng đăng nhập để tiếp tục.",
+            text: "Chào mừng bạn đến với Sanemi. Vui lòng đăng nhập để tiếp tục.",
             icon: "success",
             background: "#171717",
             color: "#fff",
@@ -69,7 +69,7 @@ const RegisterPage = () => {
       <div className="max-w-md w-full bg-neutral-800 p-8 rounded-2xl shadow-2xl border border-neutral-700">
         <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white uppercase tracking-wide">Đăng Ký</h2>
-            <p className="text-neutral-400 text-sm mt-2">Tạo tài khoản mới tại AnCinema</p>
+            <p className="text-neutral-400 text-sm mt-2">Tạo tài khoản mới tại Sanemi</p>
         </div>
                 
         <form onSubmit={handleRegister} className="space-y-5">

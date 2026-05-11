@@ -62,7 +62,7 @@ const ShowtimePage = () => {
             Lịch Chiếu Phim
           </h2>
           <p className="text-neutral-400">
-            Cập nhật lịch chiếu mới nhất tại AnCinema
+            Cập nhật lịch chiếu mới nhất tại Sanemi
           </p>
         </div>
 

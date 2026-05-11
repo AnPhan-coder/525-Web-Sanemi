@@ -16,8 +16,8 @@ export const bookingService = {
   payBooking: (id) => {
     return axiosClient.post(`/bookings/${id}/pay`);
   },
-  createVnpayPayment: (data) => {
-    return axiosClient.post("/bookings/payment/create-vnpay", data);
+  createVnpayPayment: (id, data) => {
+    return axiosClient.post(`/bookings/payment/vnpay/${id}`, data);
   },
   vnpayCallback: (queryString) => {
     return axiosClient.get(`/bookings/payment/vnpay-callback?${queryString}`);

@@ -100,7 +100,7 @@ const Header = () => {
             to="/"
             className="text-2xl font-display font-bold text-white tracking-tight hover:opacity-80 transition-opacity"
           >
-            AN<span className="text-red-500">CINEMA</span>
+            SA<span className="text-red-500">NEMI</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
@@ -263,7 +263,7 @@ const Header = () => {
                 className="text-2xl font-display font-bold text-white"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                AN<span className="text-red-600">CINEMA</span>
+                SA<span className="text-red-600">NEMI</span>
               </Link>
             </div>
 
