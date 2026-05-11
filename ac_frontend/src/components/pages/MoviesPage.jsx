@@ -8,11 +8,11 @@ import { LoadingSkeleton } from "./LoadingSpinner";
 const MoviesPage = () => {
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
-  const [activeTab, setActiveTab] = useState("all"); 
-  
   const [searchParams] = useSearchParams();
   const urlKeyword = searchParams.get("keyword");
+  const urlStatus = searchParams.get("status");
 
+  const [activeTab, setActiveTab] = useState(urlStatus || "all"); 
   const [searchTerm, setSearchTerm] = useState(urlKeyword || "");
   
   const { loading, execute } = useApiCall();
@@ -34,7 +34,10 @@ const MoviesPage = () => {
     if (urlKeyword !== null) {
       setSearchTerm(urlKeyword);
     }
-  }, [urlKeyword]);
+    if (urlStatus === "active" || urlStatus === "upcoming" || urlStatus === "all") {
+      setActiveTab(urlStatus);
+    }
+  }, [urlKeyword, urlStatus]);
 
   useEffect(() => {
     let result = movies;

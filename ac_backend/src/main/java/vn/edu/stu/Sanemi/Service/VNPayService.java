@@ -53,7 +53,7 @@ public class VNPayService {
         vnp_Params.put("vnp_Amount", String.valueOf(amount));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", "Thanh toan ve " + bookingId);
+        vnp_Params.put("vnp_OrderInfo", "ThanhToanVe_" + bookingId);
         vnp_Params.put("vnp_OrderType", "other");
         vnp_Params.put("vnp_Locale", "vn");
         vnp_Params.put("vnp_ReturnUrl", returnUrl);
@@ -73,26 +73,22 @@ public class VNPayService {
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
 
-        Iterator<String> itr = fieldNames.iterator();
-        while (itr.hasNext()) {
-            String fieldName = itr.next();
+        for (String fieldName : fieldNames) {
             String fieldValue = vnp_Params.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
                 try {
-                    String encodedValue = URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString());
+                    String encodedValue = URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString());
 
-                    hashData.append(fieldName);
-                    hashData.append('=');
-                    hashData.append(encodedValue);
-
-                    query.append(URLEncoder.encode(fieldName, StandardCharsets.UTF_8.toString()));
-                    query.append('=');
-                    query.append(encodedValue);
-
-                    if (itr.hasNext()) {
-                        query.append('&');
+                    if (hashData.length() > 0) {
                         hashData.append('&');
                     }
+                    hashData.append(fieldName).append('=').append(encodedValue);
+
+                    if (query.length() > 0) {
+                        query.append('&');
+                    }
+                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()))
+                         .append('=').append(encodedValue);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -111,7 +107,7 @@ public class VNPayService {
         for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements(); ) {
             String fieldName = params.nextElement();
             String fieldValue = request.getParameter(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+            if ((fieldValue != null) && (fieldValue.length() > 0) && fieldName.startsWith("vnp_")) {
                 try {
                     fields.put(fieldName, fieldValue);
                 } catch (Exception e) {
@@ -155,21 +151,19 @@ public class VNPayService {
         List<String> fieldNames = new ArrayList<>(fields.keySet());
         Collections.sort(fieldNames);
         StringBuilder sb = new StringBuilder();
-        Iterator<String> itr = fieldNames.iterator();
-        while (itr.hasNext()) {
-            String fieldName = itr.next();
+        for (String fieldName : fieldNames) {
             String fieldValue = fields.get(fieldName);
             if ((fieldValue != null) && (!fieldValue.isEmpty())) {
                 try {
+                    if (sb.length() > 0) {
+                        sb.append('&');
+                    }
                     sb.append(fieldName);
                     sb.append('=');
-                    sb.append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8));
+                    sb.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-            if (itr.hasNext()) {
-                sb.append('&');
             }
         }
         return hmacSHA512(secretKey, sb.toString());
@@ -181,7 +175,7 @@ public class VNPayService {
                 throw new NullPointerException();
             }
             Mac hmac512 = Mac.getInstance("HmacSHA512");
-            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), "HmacSHA512");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
             hmac512.init(secretKeySpec);
             byte[] result = hmac512.doFinal(data.getBytes(StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder(2 * result.length);

@@ -11,13 +11,22 @@ import {
 import { useApiCall } from "../../hooks/useApiCall";
 import { showtimeService } from "../../services/showtimeService";
 
+const getDefaultStartTime = () => {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(7, 30, 0, 0);
+  return new Date(tomorrow - offset).toISOString().slice(0, 16);
+};
+
 const ShowtimeForm = ({ movies, rooms, allShowtimes, onBack, onSuccess }) => {
   const { loading, execute } = useApiCall();
 
   const [formData, setFormData] = useState({
     movieId: "",
     roomId: "",
-    startTime: "",
+    startTime: getDefaultStartTime(),
     basePrice: 75000,
     isAutoGenerate: false,
   });
@@ -26,39 +35,52 @@ const ShowtimeForm = ({ movies, rooms, allShowtimes, onBack, onSuccess }) => {
   const [selectedMovieDuration, setSelectedMovieDuration] = useState(0);
 
   const [viewMode, setViewMode] = useState("MOVIE");
+  const [timeFilter, setTimeFilter] = useState("UPCOMING");
 
-  const minDateTime = useMemo(() => {
+  const { minDateTime, maxDateTime } = useMemo(() => {
     const now = new Date();
     const offset = now.getTimezoneOffset() * 60000;
-    const localISOTime = new Date(now - offset).toISOString().slice(0, 16);
-    return localISOTime;
+    const min = new Date(now - offset).toISOString().slice(0, 16);
+
+    const maxDate = new Date(now - offset + 7 * 24 * 60 * 60 * 1000);
+    maxDate.setHours(23, 59, 0, 0);
+    const max = new Date(maxDate - offset).toISOString().slice(0, 16);
+
+    return { minDateTime: min, maxDateTime: max };
   }, []);
 
-  const displayedShowtimes = useMemo(() => {
-    let filtered = [];
-    const now = new Date();
-
+  const baseShowtimes = useMemo(() => {
     if (viewMode === "MOVIE") {
       if (!formData.movieId) return [];
-      filtered = allShowtimes.filter((s) => {
-        const isMatchMovie = s.movie.id === Number(formData.movieId);
-        const isFuture = new Date(s.startTime) >= now; 
-        
-        return isMatchMovie && isFuture;
-      });
+      return allShowtimes.filter((s) => s.movie.id === Number(formData.movieId));
     } else {
       if (!formData.startTime) return [];
       const selectedDate = formData.startTime.split("T")[0];
-
-      filtered = allShowtimes.filter((s) =>
-        s.startTime.startsWith(selectedDate)
-      );
+      return allShowtimes.filter((s) => s.startTime.startsWith(selectedDate));
     }
-
-    return filtered.sort(
-      (a, b) => new Date(b.startTime) - new Date(a.startTime)
-    );
   }, [viewMode, formData.movieId, formData.startTime, allShowtimes]);
+
+  const upcomingShowtimes = useMemo(
+    () => {
+      const now = new Date();
+      return baseShowtimes
+        .filter((s) => new Date(s.startTime) >= now)
+        .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    },
+    [baseShowtimes]
+  );
+
+  const pastShowtimes = useMemo(
+    () => {
+      const now = new Date();
+      return baseShowtimes
+        .filter((s) => new Date(s.startTime) < now)
+        .sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+    },
+    [baseShowtimes]
+  );
+
+  const displayedShowtimes = timeFilter === "UPCOMING" ? upcomingShowtimes : pastShowtimes;
 
   const handleMovieChange = (e) => {
     const mId = e.target.value;
@@ -203,10 +225,14 @@ const ShowtimeForm = ({ movies, rooms, allShowtimes, onBack, onSuccess }) => {
               <input
                 type="datetime-local"
                 min={minDateTime}
+                max={maxDateTime}
                 className="w-full p-3 bg-neutral-900 border border-neutral-600 rounded-lg text-white focus:border-red-500 outline-none"
                 onChange={handleDateChange}
                 value={formData.startTime}
               />
+              <p className="text-[11px] text-neutral-500 mt-1">
+                Chỉ được chọn trong vòng <span className="text-yellow-500 font-bold">7 ngày</span> kể từ hôm nay.
+              </p>
             </div>
 
             <div>
@@ -290,6 +316,7 @@ const ShowtimeForm = ({ movies, rooms, allShowtimes, onBack, onSuccess }) => {
       <div className="lg:col-span-2 bg-neutral-800 rounded-xl border border-neutral-700 overflow-hidden flex flex-col h-[600px]">
         {/* HEADER VỚI NAVIGATION TABS */}
         <div className="bg-neutral-900 border-b border-neutral-700">
+          {/* Tab Theo Phim / Theo Ngày */}
           <div className="flex">
             <button
               onClick={() => setViewMode("MOVIE")}
@@ -299,8 +326,7 @@ const ShowtimeForm = ({ movies, rooms, allShowtimes, onBack, onSuccess }) => {
                   : "border-transparent text-neutral-400 hover:text-white hover:bg-neutral-800"
               }`}
             >
-              <Film size={16} /> Theo Phim{" "}
-              {viewMode === "MOVIE" && `(${displayedShowtimes.length})`}
+              <Film size={16} /> Theo Phim
             </button>
             <button
               onClick={() => setViewMode("DATE")}
@@ -310,18 +336,45 @@ const ShowtimeForm = ({ movies, rooms, allShowtimes, onBack, onSuccess }) => {
                   : "border-transparent text-neutral-400 hover:text-white hover:bg-neutral-800"
               }`}
             >
-              <CalendarDays size={16} /> Theo Ngày{" "}
-              {viewMode === "DATE" && `(${displayedShowtimes.length})`}
+              <CalendarDays size={16} /> Theo Ngày
             </button>
           </div>
 
-          <div className="px-4 py-2 text-xs text-neutral-500 bg-neutral-900 text-center border-b border-neutral-800">
+          {/* Tab Sắp tới / Lịch sử */}
+          <div className="flex border-t border-neutral-800">
+            <button
+              onClick={() => setTimeFilter("UPCOMING")}
+              className={`flex-1 py-2 text-xs font-bold transition-colors ${
+                timeFilter === "UPCOMING"
+                  ? "text-green-400 bg-neutral-800/60"
+                  : "text-neutral-500 hover:text-neutral-300"
+              }`}
+            >
+              Sắp tới{timeFilter === "UPCOMING" && ` (${upcomingShowtimes.length})`}
+            </button>
+            <button
+              onClick={() => setTimeFilter("PAST")}
+              className={`flex-1 py-2 text-xs font-bold transition-colors ${
+                timeFilter === "PAST"
+                  ? "text-neutral-300 bg-neutral-800/60"
+                  : "text-neutral-500 hover:text-neutral-300"
+              }`}
+            >
+              Lịch sử{timeFilter === "PAST" && ` (${pastShowtimes.length})`}
+            </button>
+          </div>
+
+          <div className="px-4 py-2 text-xs text-neutral-500 bg-neutral-900 text-center border-t border-neutral-800">
             {viewMode === "MOVIE"
               ? formData.movieId
-                ? "Đang hiện các suất của phim này (tất cả ngày)"
+                ? timeFilter === "UPCOMING"
+                  ? "Suất chiếu sắp tới của phim này"
+                  : "Lịch chiếu đã qua của phim này"
                 : "Hãy chọn phim để xem lịch"
               : formData.startTime
-              ? `Lịch chiếu ngày ${formData.startTime.split("T")[0]}`
+              ? `Lịch chiếu ngày ${formData.startTime.split("T")[0]}${
+                  timeFilter === "PAST" ? " (bao gồm đã chiếu)" : ""
+                }`
               : "Hãy chọn ngày bắt đầu để xem lịch rạp"}
           </div>
         </div>
