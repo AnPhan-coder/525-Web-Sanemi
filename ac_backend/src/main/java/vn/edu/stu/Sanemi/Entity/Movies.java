@@ -51,6 +51,8 @@ public class Movies {
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
     List<Actors> actors;
+    @Column(name = "average_rating")
+    Double averageRating;
 }
 
 

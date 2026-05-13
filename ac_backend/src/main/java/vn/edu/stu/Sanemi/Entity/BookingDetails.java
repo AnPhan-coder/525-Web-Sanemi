@@ -30,6 +30,8 @@ public class BookingDetails {
 
     @Column(name = "qr_code")
     String qrCode;
+
+    
 }
 
 

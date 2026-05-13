@@ -36,6 +36,7 @@ public interface BookingsRepository extends JpaRepository<Bookings, Integer> {
             "GROUP BY b.showtime.movie.title " +
             "ORDER BY revenue DESC")
     List<Map<String, Object>> getTopMovies();
+    boolean existsByUserIdAndShowtimeMovieIdAndStatus(Integer userId, Integer movieId, BookingStatus status);
 }
 
 
