@@ -325,9 +325,9 @@ const MovieDetail = () => {
               </>
             )}
           </section>
-
           <ReviewSection movieId={id} />
         </motion.div>
+
 
       </div>
       {/* Trailer Modal */}
