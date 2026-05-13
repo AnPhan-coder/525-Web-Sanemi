@@ -16,6 +16,7 @@ import {
 
 import { useApiCall } from "../../hooks/useApiCall";
 import { LoadingSkeleton } from "./LoadingSpinner";
+import ReviewSection from "../ReviewSection";
 
 const MovieDetail = () => {
   const { id } = useParams();
@@ -281,6 +282,9 @@ const MovieDetail = () => {
               </>
             )}
           </section>
+          <div className="container mx-auto px-4 max-w-5xl">
+                <ReviewSection movieId={id} />
+            </div>
         </div>
       </div>
     </div>

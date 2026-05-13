@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import CommunityPage from "./components/pages/CommunityPage";
 import HomePage from './components/pages/HomePage';
 import LoginPage from './components/pages/LoginPage';
 import MoviesPage from "./components/pages/MoviesPage"; 
@@ -45,6 +46,7 @@ const AppContent = () => {
           <Route path="/booking/:showtimeId" element={<BookingPage />} />
           <Route path="/payment/:bookingId" element={<PaymentPage />} />
           <Route path="/payment-return" element={<PaymentReturn />} />
+          <Route path="/community" element={<CommunityPage />} />
 
           <Route element={<AdminRoute />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />

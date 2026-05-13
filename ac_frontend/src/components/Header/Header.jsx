@@ -136,6 +136,16 @@ const Header = () => {
             >
               Phim
             </Link>
+            <Link
+              to="/community"
+              className={`text-sm font-medium uppercase tracking-wide transition-colors ${
+                isActive("/community")
+                  ? "text-red-500"
+                  : "text-neutral-400 hover:text-red-400"
+              }`}
+            >
+              Cộng Đồng
+            </Link>
             
           </nav>
 
