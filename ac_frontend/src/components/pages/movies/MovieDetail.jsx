@@ -41,6 +41,7 @@ const fadeUpVariant = {
   },
 };
 
+
 const MovieDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -326,6 +327,7 @@ const MovieDetail = () => {
           </section>
           <ReviewSection movieId={id} />
         </motion.div>
+
       </div>
       {/* Trailer Modal */}
       {trailerOpen && movie?.trailerUrl && (
