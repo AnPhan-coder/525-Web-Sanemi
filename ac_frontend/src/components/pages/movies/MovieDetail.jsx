@@ -282,8 +282,8 @@ const MovieDetail = () => {
                         key={date.toString()}
                         onClick={() => setSelectedDate(date)}
                         className={`flex flex-col items-center min-w-[90px] p-3 rounded-xl border transition-all ${isSelected
-                            ? "bg-red-600 border-red-500 text-white shadow-lg scale-105"
-                            : "bg-neutral-900 border-neutral-800 text-neutral-400 hover:border-neutral-600"
+                          ? "bg-red-600 border-red-500 text-white shadow-lg scale-105"
+                          : "bg-neutral-900 border-neutral-800 text-neutral-400 hover:border-neutral-600"
                           }`}
                       >
                         <span className="text-xs font-bold uppercase">
@@ -325,6 +325,7 @@ const MovieDetail = () => {
               </>
             )}
           </section>
+
           <ReviewSection movieId={id} />
         </motion.div>
 
