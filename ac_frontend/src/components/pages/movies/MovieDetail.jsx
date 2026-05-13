@@ -16,8 +16,6 @@ import {
   Star,
 } from "lucide-react";
 import { motion } from "framer-motion";
-
-
 import { useApiCall } from "../../../hooks/useApiCall";
 import { LoadingSkeleton } from "../common/LoadingSpinner";
 import TrailerPlayer from "../common/TrailerPlayer";
@@ -327,7 +325,6 @@ const MovieDetail = () => {
             )}
           </section>
           <ReviewSection movieId={id} />
-
         </motion.div>
       </div>
       {/* Trailer Modal */}
