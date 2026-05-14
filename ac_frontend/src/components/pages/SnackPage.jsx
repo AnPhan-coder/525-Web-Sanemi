@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ShoppingCart, ArrowRight, SkipForward, Plus, Minus, Popcorn, Coffee } from "lucide-react";
+import { toast } from "react-toastify";
 import { snackService } from "../../services/snackService";
 import { bookingService } from "../../services/bookingService";
 import { useApiCall } from "../../hooks/useApiCall";
@@ -70,14 +71,27 @@ const SnackPage = () => {
     });
   };
 
-  const handleContinue = () => {
-    // Truyền snack đã chọn sang PaymentPage qua state navigation
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleContinue = async () => {
+    if (isSaving) return;
     const selectedSnacks = cartItems.map((i) => ({
       snackItemId: i.id,
       quantity: i.quantity,
       unitPrice: i.price,
     }));
-    navigate(`/payment/${bookingId}`, { state: { snacks: selectedSnacks, snackTotal } });
+    try {
+      setIsSaving(true);
+      if (selectedSnacks.length > 0) {
+        // Lưu snack vào DB và cập nhật tổng tiền
+        await bookingService.addSnacks(bookingId, selectedSnacks);
+      }
+      navigate(`/payment/${bookingId}`, { state: { snacks: selectedSnacks, snackTotal } });
+    } catch {
+      toast.error("Đã có lỗi khi lưu bắp nước. Vui lòng thử lại!");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSkip = () => {
@@ -202,9 +216,14 @@ const SnackPage = () => {
 
               <button
                 onClick={handleContinue}
-                className="w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-neutral-900 font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                disabled={isSaving}
+                className={`w-full py-3 rounded-lg font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                  isSaving
+                    ? "bg-neutral-600 text-neutral-400 cursor-not-allowed"
+                    : "bg-yellow-500 hover:bg-yellow-400 text-neutral-900"
+                }`}
               >
-                Tiếp tục <ArrowRight size={18} />
+                {isSaving ? "Đang lưu..." : (<>Tiếp tục <ArrowRight size={18} /></>)}
               </button>
 
               <button

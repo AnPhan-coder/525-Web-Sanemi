@@ -170,12 +170,10 @@ const HomePage = () => {
 
                       <div className="flex items-center justify-center md:justify-start gap-4 text-neutral-300 text-sm">
                         <span className="flex items-center gap-1">
-                          <Calendar size={16} className="text-red-500" /> 2024
+                          <Calendar size={16} className="text-red-500" /> 2026
                         </span>
                         <span>•</span>
                         <span>{movie.duration} phút</span>
-                        <span>•</span>
-                        <span className="uppercase">{movie.genre}</span>
                       </div>
 
                       <div className="pt-6">

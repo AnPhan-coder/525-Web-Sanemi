@@ -110,6 +110,13 @@ const MyBookings = ({ user }) => {
                                     <p className="flex items-center gap-2 text-white font-medium">
                                         Ghế: {booking.bookingDetails?.map(d => d.seat?.seatCode || d.seat?.code).join(", ")}
                                     </p>
+                                    {booking.snacks?.length > 0 && (
+                                        <p className="flex items-center gap-2 text-yellow-500">
+                                            🍿 {booking.snacks.map(s =>
+                                                `${s.snackItem?.name} x${s.quantity}`
+                                            ).join(", ")}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 

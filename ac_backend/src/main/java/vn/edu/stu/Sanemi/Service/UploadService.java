@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
+    @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UploadService {
 

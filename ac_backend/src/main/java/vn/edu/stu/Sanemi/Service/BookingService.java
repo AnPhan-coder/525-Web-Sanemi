@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.stu.Sanemi.Entity.*;
 import vn.edu.stu.Sanemi.Repository.*;
+import vn.edu.stu.Sanemi.dto.request.AddSnacksRequest;
 import vn.edu.stu.Sanemi.dto.request.BookingsRequest;
 import vn.edu.stu.Sanemi.dto.response.SeatResponse;
 import vn.edu.stu.Sanemi.enums.BookingStatus;
@@ -28,6 +29,8 @@ import java.util.stream.Collectors;
 public class BookingService {
     BookingsRepository bookingsRepository;
     BookingDetailsRepository bookingDetailRepository;
+    BookingSnacksRepository bookingSnacksRepository;
+    SnackItemRepository snackItemRepository;
     SeatsRepository seatsRepository;
     ShowtimesRepository showtimesRepository;
     UsersRepository usersRepository;
@@ -127,6 +130,9 @@ public class BookingService {
         bookingsRepository.save(booking);
 
         try {
+            // Load lại snack (lazy) trước khi gửi mail
+            List<BookingSnacks> snacks = bookingSnacksRepository.findByBookingId(bookingId);
+            booking.setSnacks(snacks);
             sendTicketEmail(booking);
         } catch (Exception e) {
             System.err.println("Lỗi gửi mail vé: " + e.getMessage());
@@ -135,6 +141,35 @@ public class BookingService {
 
     public List<Bookings> getMyBookings(Integer userId) {
         return bookingsRepository.findByUserIdOrderByBookingTimeDesc(userId);
+    }
+
+    @Transactional
+    public Bookings addSnacks(Integer bookingId, AddSnacksRequest request) {
+        Bookings booking = bookingsRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
+
+        if (request.getSnacks() == null || request.getSnacks().isEmpty()) {
+            return booking;
+        }
+
+        double snackTotal = 0;
+        for (AddSnacksRequest.SnackOrderItem item : request.getSnacks()) {
+            SnackItems snackItem = snackItemRepository.findById(item.getSnackItemId())
+                    .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại: " + item.getSnackItemId()));
+
+            BookingSnacks bookingSnack = BookingSnacks.builder()
+                    .booking(booking)
+                    .snackItem(snackItem)
+                    .quantity(item.getQuantity())
+                    .unitPrice(item.getUnitPrice())
+                    .build();
+            bookingSnacksRepository.save(bookingSnack);
+            snackTotal += item.getUnitPrice() * item.getQuantity();
+        }
+
+        // Cộng snack vào tổng tiền booking
+        booking.setTotalPrice(booking.getTotalPrice() + snackTotal);
+        return bookingsRepository.save(booking);
     }
 
     void sendTicketEmail(Bookings booking) {
