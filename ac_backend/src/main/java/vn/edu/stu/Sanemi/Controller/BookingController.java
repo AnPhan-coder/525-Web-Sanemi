@@ -10,6 +10,7 @@ import vn.edu.stu.Sanemi.Entity.*;
 import vn.edu.stu.Sanemi.Repository.*;
 import vn.edu.stu.Sanemi.Service.BookingService;
 import vn.edu.stu.Sanemi.Service.VNPayService;
+import vn.edu.stu.Sanemi.dto.request.AddSnacksRequest;
 import vn.edu.stu.Sanemi.dto.request.BookingsRequest;
 import vn.edu.stu.Sanemi.dto.response.ApiResponse;
 import vn.edu.stu.Sanemi.dto.response.SeatResponse;
@@ -55,6 +56,16 @@ public class BookingController {
         bookingService.processPayment(id);
         return ApiResponse.<String>builder()
                 .message("Thanh toán thành công! Vé đã được gửi tới email.")
+                .build();
+    }
+
+    // Lưu snack vào booking trước khi thanh toán
+    @PostMapping("/{id}/snacks")
+    public ApiResponse<Bookings> addSnacks(@PathVariable Integer id,
+                                           @RequestBody AddSnacksRequest request) {
+        return ApiResponse.<Bookings>builder()
+                .result(bookingService.addSnacks(id, request))
+                .message("Đã thêm bắp nước vào đơn hàng")
                 .build();
     }
 

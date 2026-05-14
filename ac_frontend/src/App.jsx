@@ -3,21 +3,23 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import HomePage from './components/pages/HomePage';
-import LoginPage from './components/pages/LoginPage';
-import MoviesPage from "./components/pages/MoviesPage";
-import ShowtimePage from "./components/pages/ShowtimePage";
-import MovieDetail from './components/pages/MovieDetail';
-import BookingPage from './components/pages/BookingPage';
-import ScrollToTop from './components/pages/ScrollToTop';
-import RegisterPage from './components/pages/RegisterPage';
-import ForgotPasswordPage from './components/pages/ForgotPasswordPage';
-import AdminRoute from './components/pages/AdminRoute';
-import AdminDashboard from './components/pages/AdminDashboard';
-import ManageUsers from './components/pages/ManageUsers';
-import UserProfile from './components/pages/UserProfileMain';
-import PaymentReturn from './components/pages/PaymentReturn';
-import PaymentPage from './components/pages/PaymentPage';
+import HomePage from './components/pages/movies/HomePage';
+import LoginPage from './components/pages/auth/LoginPage';
+import MoviesPage from "./components/pages/movies/MoviesPage";
+import ShowtimePage from "./components/pages/movies/ShowtimePage";
+import MovieDetail from './components/pages/movies/MovieDetail';
+import BookingPage from './components/pages/booking/BookingPage';
+import ScrollToTop from './components/pages/common/ScrollToTop';
+import RegisterPage from './components/pages/auth/RegisterPage';
+import ForgotPasswordPage from './components/pages/auth/ForgotPasswordPage';
+import AdminRoute from './components/pages/common/AdminRoute';
+import AdminDashboard from './components/pages/admin/AdminDashboard';
+import ManageUsers from './components/pages/admin/ManageUsers';
+import UserProfile from './components/pages/user/UserProfileMain';
+import PaymentReturn from './components/pages/booking/PaymentReturn';
+import PaymentPage from './components/pages/booking/PaymentPage';
+import SnackPage from './components/pages/booking/SnackPage';
+import ManageTrailer from './components/pages/admin/ManageTrailer';
 
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
@@ -43,6 +45,7 @@ const AppContent = () => {
           <Route path="/schedule" element={<ShowtimePage />} />
 
           <Route path="/booking/:showtimeId" element={<BookingPage />} />
+          <Route path="/booking/snacks/:bookingId" element={<SnackPage />} />
           <Route path="/payment/:bookingId" element={<PaymentPage />} />
           <Route path="/payment-return" element={<PaymentReturn />} />
 

@@ -24,5 +24,8 @@ export const bookingService = {
   },
   getMyBookings: (userId) => {
     return axiosClient.get(`/bookings/my-bookings?userId=${userId}`);
-  }
+  },
+  addSnacks: (bookingId, snacks) => {
+    return axiosClient.post(`/bookings/${bookingId}/snacks`, { snacks });
+  },
 };
