@@ -157,7 +157,7 @@ export const useBooking = (showtimeId) => {
           toast.success("✅ Đặt vé thành công!");
           const bookingData = response.data?.result || response.data;
           if (bookingData && bookingData.id) {
-            navigate(`/payment/${bookingData.id}`);
+            navigate(`/booking/snacks/${bookingData.id}`);
           }
         } catch (error) {
           toast.error(error.response?.data?.message || "❌ Đặt vé thất bại!");

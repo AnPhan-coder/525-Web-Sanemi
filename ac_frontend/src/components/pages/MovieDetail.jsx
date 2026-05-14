@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 
 import { useApiCall } from "../../hooks/useApiCall";
 import { LoadingSkeleton } from "./LoadingSpinner";
+import TrailerPlayer from "../common/TrailerPlayer";
 
 const staggerContainer = {
   hidden: { opacity: 0 },
@@ -47,12 +48,20 @@ const MovieDetail = () => {
   const [movie, setMovie] = useState(null);
   const [showtimes, setShowtimes] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [trailerOpen, setTrailerOpen] = useState(false);
 
   const { loading, execute } = useApiCall();
 
   useEffect(() => {
     fetchMovieData();
   }, [id]);
+
+  // Đóng modal khi nhấn ESC
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === "Escape") setTrailerOpen(false); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, []);
 
   const fetchMovieData = async () => {
     await execute(
@@ -197,14 +206,12 @@ const MovieDetail = () => {
               </button>
 
               {movie.trailerUrl && (
-                <a
-                  href={movie.trailerUrl}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  onClick={() => setTrailerOpen(true)}
                   className="bg-neutral-800 text-white px-8 py-3 rounded-lg font-bold hover:bg-neutral-700 border border-neutral-700 flex items-center justify-center gap-2 transition-all"
                 >
                   <Play size={20} fill="currentColor" /> Xem Trailer
-                </a>
+                </button>
               )}
             </motion.div>
           </motion.div>
@@ -320,6 +327,40 @@ const MovieDetail = () => {
           </section>
         </motion.div>
       </div>
+      {/* Trailer Modal */}
+      {trailerOpen && movie?.trailerUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          onClick={() => setTrailerOpen(false)}
+        >
+          <div
+            className="bg-neutral-900 rounded-2xl border border-neutral-700 w-full max-w-3xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-800">
+              <h3 className="font-display font-bold text-white uppercase tracking-wide text-sm">
+                TRAILER — {movie.title}
+              </h3>
+              <button
+                onClick={() => setTrailerOpen(false)}
+                className="text-neutral-400 hover:text-white transition-colors p-1 rounded-full hover:bg-neutral-800"
+                aria-label="Đóng"
+              >
+                ✕
+              </button>
+            </div>
+            {/* Video Player — key thay đổi khi mở/đóng để reset trạng thái */}
+            <div className="p-1">
+              <TrailerPlayer
+                key={trailerOpen ? "open" : "closed"}
+                trailerUrl={movie.trailerUrl}
+                title={movie.title}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { bookingService } from "../../services/bookingService";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
@@ -13,6 +13,11 @@ import {
 const PaymentPage = () => {
   const { bookingId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Snack data passed from SnackPage via navigate state
+  const snacks = location.state?.snacks || [];
+  const snackTotal = location.state?.snackTotal || 0;
 
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
@@ -227,12 +232,25 @@ const PaymentPage = () => {
               </div>
             </div>
 
-            <div className="mb-8 p-4 bg-neutral-900/50 rounded border border-neutral-700 text-center">
-              <p className="text-neutral-400 text-sm mb-1">
-                Tổng tiền thanh toán
-              </p>
-              <div className="text-3xl font-bold text-yellow-500">
-                {booking?.totalPrice?.toLocaleString("vi-VN")} đ
+            <div className="mb-8 p-4 bg-neutral-900/50 rounded border border-neutral-700">
+              <p className="text-neutral-400 text-sm mb-3 text-center">Tóm tắt đơn hàng</p>
+              <div className="space-y-2 text-sm mb-3">
+                <div className="flex justify-between text-neutral-300">
+                  <span>Vé xem phim ({booking?.bookingDetails?.length || 0} vé)</span>
+                  <span>{booking?.totalPrice?.toLocaleString("vi-VN")} đ</span>
+                </div>
+                {snacks.length > 0 && (
+                  <div className="flex justify-between text-neutral-300">
+                    <span>🍿 Bắp & Nước ({snacks.reduce((s, i) => s + i.quantity, 0)} món)</span>
+                    <span>{snackTotal.toLocaleString("vi-VN")} đ</span>
+                  </div>
+                )}
+              </div>
+              <div className="border-t border-neutral-700 pt-3 text-center">
+                <p className="text-neutral-400 text-xs mb-1">Tổng tiền thanh toán</p>
+                <div className="text-3xl font-bold text-yellow-500">
+                  {((booking?.totalPrice || 0) + snackTotal).toLocaleString("vi-VN")} đ
+                </div>
               </div>
             </div>
 

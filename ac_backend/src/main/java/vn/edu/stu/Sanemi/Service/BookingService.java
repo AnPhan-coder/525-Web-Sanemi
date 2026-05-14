@@ -141,6 +141,7 @@ public class BookingService {
         try {
             String userEmail = booking.getUser().getEmail();
             String movieTitle = booking.getShowtime().getMovie().getTitle();
+            String moviePoster = booking.getShowtime().getMovie().getPosterUrl();
             String roomName = booking.getShowtime().getRoom().getName();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
@@ -150,12 +151,21 @@ public class BookingService {
                     .map(detail -> detail.getSeat().getSeatCode())
                     .collect(Collectors.joining(", "));
 
+            String snacksInfo = "";
+            if (booking.getSnacks() != null && !booking.getSnacks().isEmpty()) {
+                snacksInfo = booking.getSnacks().stream()
+                        .map(snack -> snack.getSnackItem().getName() + " (x" + snack.getQuantity() + ")")
+                        .collect(Collectors.joining(", "));
+            } else {
+                snacksInfo = "Không có";
+            }
+
             Locale localeVN = new Locale("vi", "VN");
             NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
             String formattedPrice = currencyVN.format(booking.getTotalPrice());
 
-            String qrContent = String.format("Mã Vé: %d | Phim: %s | Rạp: %s | Ghế: %s | Suất: %s",
-                    booking.getId(), movieTitle, roomName, seatCodes, showTime);
+            String qrContent = String.format("Mã Vé: %d | Phim: %s | Rạp: %s | Ghế: %s | Bắp nước: %s | Suất: %s",
+                    booking.getId(), movieTitle, roomName, seatCodes, snacksInfo, showTime);
 
             String encodedQrContent = URLEncoder.encode(qrContent, StandardCharsets.UTF_8);
             String qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodedQrContent;
@@ -192,6 +202,10 @@ public class BookingService {
                             <p>Xin chào <strong>%s</strong>,</p>
                             <p>Cảm ơn bạn đã đặt vé. Đây là vé vào cửa của bạn:</p>
                             
+                            <div style="text-align: center; margin-bottom: 20px;">
+                                <img src="%s" alt="Poster" style="max-width: 100%%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); height: auto; max-height: 250px; object-fit: cover;" />
+                            </div>
+
                             <div class="movie-title">%s</div>
                             <div class="cinema-name">%s</div>
                             
@@ -207,6 +221,10 @@ public class BookingService {
                                 <tr>
                                     <td class="label">Ghế:</td>
                                     <td class="value" style="color: #d32f2f;">%s</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Bắp nước:</td>
+                                    <td class="value">%s</td>
                                 </tr>
                                 <tr>
                                     <td class="label">Tổng tiền:</td>
@@ -229,11 +247,13 @@ public class BookingService {
                 </html>
                 """,
                     booking.getUser().getName(),
+                    moviePoster,
                     movieTitle,
                     roomName,
                     booking.getId(),
                     showTime,
                     seatCodes,
+                    snacksInfo,
                     formattedPrice,
                     qrImageUrl
             );

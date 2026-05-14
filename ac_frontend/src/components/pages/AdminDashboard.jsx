@@ -4,6 +4,8 @@ import ManageMovie from "./ManageMovie";
 import ManageRooms from "./ManageRooms";
 import ManageUsers from "./ManageUsers";
 import AdminStats from "./AdminStats";
+import ManageSnacks from "./ManageSnacks";
+import ManageTrailer from "./ManageTrailer";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("movies");
@@ -15,6 +17,8 @@ const AdminDashboard = () => {
       case "rooms": return <ManageRooms />;
       case "users": return <ManageUsers />;
       case "stats": return <AdminStats />;
+      case "snacks": return <ManageSnacks />;
+      case "trailer": return <ManageTrailer />;
       default: return <ManageMovie />;
     }
   };
@@ -55,6 +59,17 @@ const AdminDashboard = () => {
                 active={activeTab === "stats"}
                 onClick={() => setActiveTab("stats")}
               />
+              <div className="my-4 border-t border-neutral-700"></div>
+              <SidebarItem
+                label="Bắp & Nước"
+                active={activeTab === "snacks"}
+                onClick={() => setActiveTab("snacks")}
+              />
+              <SidebarItem
+                label="Trailer Phim"
+                active={activeTab === "trailer"}
+                onClick={() => setActiveTab("trailer")}
+              />
             </nav>
 
             <div className="mt-auto pt-8 text-xs text-neutral-500 font-body">
@@ -76,6 +91,8 @@ const AdminDashboard = () => {
               <option value="rooms">Quản lý Phòng</option>
               <option value="users">Quản lý Người dùng</option>
               <option value="stats">Thống kê Doanh thu</option>
+              <option value="snacks">Bắp &amp; Nước</option>
+              <option value="trailer">Trailer Phim</option>
             </select>
           </div>
 

@@ -18,6 +18,8 @@ import ManageUsers from './components/pages/ManageUsers';
 import UserProfile from './components/pages/UserProfileMain';
 import PaymentReturn from './components/pages/PaymentReturn';
 import PaymentPage from './components/pages/PaymentPage';
+import SnackPage from './components/pages/SnackPage';
+import ManageTrailer from './components/pages/ManageTrailer';
 
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
@@ -43,6 +45,7 @@ const AppContent = () => {
           <Route path="/schedule" element={<ShowtimePage />} />
 
           <Route path="/booking/:showtimeId" element={<BookingPage />} />
+          <Route path="/booking/snacks/:bookingId" element={<SnackPage />} />
           <Route path="/payment/:bookingId" element={<PaymentPage />} />
           <Route path="/payment-return" element={<PaymentReturn />} />
 
