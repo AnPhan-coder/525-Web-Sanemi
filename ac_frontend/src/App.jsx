@@ -19,6 +19,9 @@ import ManageUsers from './components/pages/ManageUsers';
 import UserProfile from './components/pages/UserProfileMain';
 import PaymentReturn from './components/pages/PaymentReturn';
 import PaymentPage from './components/pages/PaymentPage';
+import SnackPage from './components/pages/booking/SnackPage';
+import ManageTrailer from './components/pages/admin/ManageTrailer';
+
 
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
@@ -38,12 +41,13 @@ const AppContent = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/movie/:id" element={<MovieDetail />} />
+          <Route path="/movie/:id" element={<MovieDetail />} /> 
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/movies" element={<MoviesPage />} />
           <Route path="/schedule" element={<ShowtimePage />} />
 
           <Route path="/booking/:showtimeId" element={<BookingPage />} />
+          <Route path="/booking/snacks/:bookingId" element={<SnackPage />} />
           <Route path="/payment/:bookingId" element={<PaymentPage />} />
           <Route path="/payment-return" element={<PaymentReturn />} />
           <Route path="/community" element={<CommunityPage />} />

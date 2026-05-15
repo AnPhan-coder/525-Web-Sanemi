@@ -40,6 +40,9 @@ public class Bookings {
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<BookingDetails> bookingDetails;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<BookingSnacks> snacks;
 }
 
 

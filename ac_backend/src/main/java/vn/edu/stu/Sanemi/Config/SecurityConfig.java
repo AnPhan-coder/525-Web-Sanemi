@@ -22,6 +22,7 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {"/api/movies/**", "/api/seats/**"
             , "/api/showtimes/**", "/api/auth/**", "/api/rooms/**", "/api/bookings/**"
             , "/api/genres/**", "/api/actors/**", "/api/upload/**", "/uploads/**","/api/reviews/**" };
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -33,7 +34,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOrigins(List.of("http://localhost:5173")); // Link React
-                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);
                     return config;

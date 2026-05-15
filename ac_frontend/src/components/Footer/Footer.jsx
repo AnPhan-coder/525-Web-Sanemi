@@ -11,10 +11,10 @@ const Footer = () => {
           
           <div>
             <h3 className="text-xl font-display font-bold text-white mb-4">
-              AN<span className="text-red-500">CINEMA</span>
+              SA<span className="text-red-500">NEMI</span>
             </h3>
             <p className="text-sm text-neutral-500 leading-relaxed mb-6">
-              Chào mừng bạn đến với bình nguyên vô tận
+              Đến Sanemi để thưởng thức Cinema
             </p>
             
             <div className="flex gap-3">
@@ -124,7 +124,7 @@ const Footer = () => {
         <div className="border-t border-neutral-800 pt-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs text-neutral-600">
-              &copy; 2025 AN CINEMA. All Rights Reserved.
+              &copy; 2025 SANEMI. All Rights Reserved.
             </p>
             <div className="flex gap-6 text-xs text-neutral-600">
               <Link to="/terms" className="hover:text-red-500 transition-colors">
