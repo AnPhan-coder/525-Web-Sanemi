@@ -19,7 +19,7 @@ import { motion } from "framer-motion";
 import { useApiCall } from "../../../hooks/useApiCall";
 import { LoadingSkeleton } from "../common/LoadingSpinner";
 import TrailerPlayer from "../common/TrailerPlayer";
-import ReviewSection from "../ReviewSection";
+import ReviewSection from "../../ReviewSection";
 
 const staggerContainer = {
   hidden: { opacity: 0 },

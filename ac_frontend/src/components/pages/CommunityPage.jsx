@@ -4,7 +4,7 @@ import axiosClient from "../../api/axiosClient";
 import reviewApi from "../../api/reviewApi";
 import { MessageCircle, Star, Film } from "lucide-react";
 import { useApiCall } from "../../hooks/useApiCall";
-import { LoadingSkeleton } from "./LoadingSpinner";
+import { LoadingSkeleton } from "../pages/common/LoadingSpinner";
 
 const CommunityPage = () => {
   const [reviews, setReviews] = useState([]);
