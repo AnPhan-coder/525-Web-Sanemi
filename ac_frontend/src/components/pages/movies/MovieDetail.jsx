@@ -179,7 +179,15 @@ const MovieDetail = () => {
                 phút
               </span>
               <span className="flex items-center gap-1 bg-neutral-800 px-3 py-1 rounded border border-neutral-700">
-                <Star size={14} className="text-yellow-400 fill-yellow-400" /> 4.5/5
+                <Star size={14} className={movie.averageRating > 0 ? "text-yellow-400 fill-yellow-400" : "text-neutral-500"} />
+                {movie.averageRating > 0 ? (
+                  <>
+                    <span className="font-bold text-white">{movie.averageRating.toFixed(1)}</span>
+                    <span className="text-neutral-500 text-xs">/ 5</span>
+                  </>
+                ) : (
+                  <span className="text-neutral-400 text-xs font-normal">Chưa có đánh giá</span>
+                )}
               </span>
             </motion.div>
 
