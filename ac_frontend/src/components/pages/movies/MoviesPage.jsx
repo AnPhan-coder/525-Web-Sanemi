@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { movieService } from "../../../services/movieService";
-import { Link, useSearchParams } from "react-router-dom"; 
-import { Search, Film, Calendar, Ticket } from "lucide-react";
+import { useSearchParams, useNavigate } from "react-router-dom"; 
+import { Search, Film, Calendar, Ticket, Play, Info } from "lucide-react"; 
 import { useApiCall } from "../../../hooks/useApiCall";
 import { LoadingSkeleton } from "../common/LoadingSpinner"; 
+import TrailerModal from "../common/TrailerModal"; 
 
 const MoviesPage = () => {
+  const navigate = useNavigate();
+
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchParams] = useSearchParams();
@@ -15,6 +18,9 @@ const MoviesPage = () => {
   const [activeTab, setActiveTab] = useState(urlStatus || "all"); 
   const [searchTerm, setSearchTerm] = useState(urlKeyword || "");
   
+  // State quản lý Trailer Modal
+  const [trailerMovie, setTrailerMovie] = useState(null);
+
   const { loading, execute } = useApiCall();
 
   useEffect(() => {
@@ -31,12 +37,8 @@ const MoviesPage = () => {
   }, []);
 
   useEffect(() => {
-    if (urlKeyword !== null) {
-      setSearchTerm(urlKeyword);
-    }
-    if (urlStatus === "active" || urlStatus === "upcoming" || urlStatus === "all") {
-      setActiveTab(urlStatus);
-    }
+    if (urlKeyword !== null) setSearchTerm(urlKeyword);
+    if (urlStatus === "active" || urlStatus === "upcoming" || urlStatus === "all") setActiveTab(urlStatus);
   }, [urlKeyword, urlStatus]);
 
   useEffect(() => {
@@ -56,6 +58,10 @@ const MoviesPage = () => {
 
     setFilteredMovies(result);
   }, [activeTab, searchTerm, movies]);
+
+  const handleMovieClick = (id) => {
+    navigate(`/movie/${id}`);
+  };
 
   return (
     <div className="bg-neutral-900 min-h-screen pt-24 pb-12 font-body text-white">
@@ -128,10 +134,11 @@ const MoviesPage = () => {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {filteredMovies.map((movie) => (
-              <Link 
-                to={`/movie/${movie.id}`} 
+              // Bỏ thẻ Link, đổi thành div để các nút bên trong hoạt động đúng chuẩn HTML
+              <div 
                 key={movie.id} 
-                className="group relative bg-neutral-800 rounded-xl overflow-hidden border border-neutral-800 hover:border-red-500/50 transition-all duration-300 hover:-translate-y-1"
+                onClick={() => handleMovieClick(movie.id)}
+                className="group relative bg-neutral-800 flex flex-col rounded-xl overflow-hidden border border-neutral-800 hover:border-red-500/50 transition-all duration-300 hover:-translate-y-1 cursor-pointer shadow-lg"
               >
                 {/* Poster */}
                 <div className="aspect-2/3 overflow-hidden relative">
@@ -139,7 +146,7 @@ const MoviesPage = () => {
                     src={movie.posterUrl} 
                     alt={movie.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    onError={(e) => e.target.src = "https://via.placeholder.com/300x450"} 
+                    onError={(e) => e.target.src = "https://via.placeholder.com/300x450?text=No+Image"} 
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                      <span className="bg-red-600 text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 transform scale-0 group-hover:scale-100 transition-transform">
@@ -149,25 +156,61 @@ const MoviesPage = () => {
                 </div>
 
                 {/* Content */}
-                <div className="p-3">
-                  <h3 className="font-bold text-white truncate group-hover:text-red-500 transition-colors" title={movie.title}>
+                <div className="p-3 flex-grow flex flex-col">
+                  <h3 className="font-bold text-white line-clamp-1 group-hover:text-red-500 transition-colors" title={movie.title}>
                     {movie.title}
                   </h3>
-                  <div className="flex items-center justify-between mt-2 text-xs text-neutral-400">
+                  <div className="flex items-center justify-between mt-2 mb-3 text-xs text-neutral-400">
                     <span className="flex items-center gap-1">
                       <Calendar size={12} /> {movie.duration}p
                     </span>
                     <span className={`px-2 py-0.5 rounded ${
-                        movie.status === 'active' ? 'text-green-500 bg-green-500/10' : 'text-yellow-500 bg-yellow-500/10'
+                        movie.status === 'active' ? 'text-red-500 bg-red-500/10' : 'text-yellow-500 bg-yellow-500/10'
                     }`}>
                         {movie.status === 'active' ? 'Đang chiếu' : 'Sắp chiếu'}
                     </span>
                   </div>
+
+                  {/* Quick Action Buttons */}
+                  <div className="mt-auto pt-2 grid grid-cols-2 gap-2 border-t border-neutral-700/50">
+                    <button
+                      disabled={!movie.trailerUrl || movie.trailerUrl === "1"}
+                      title={!movie.trailerUrl || movie.trailerUrl === "1" ? "Chưa có trailer" : "Xem Trailer"}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (movie.trailerUrl && movie.trailerUrl !== "1") setTrailerMovie(movie);
+                      }}
+                      className={`flex items-center justify-center gap-1 py-1.5 rounded text-[10px] sm:text-xs font-bold uppercase transition-all ${
+                        movie.trailerUrl && movie.trailerUrl !== "1"
+                          ? "bg-neutral-700 text-white hover:bg-neutral-600"
+                          : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+                      }`}
+                    >
+                      <Play size={12} /> Trailer
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMovieClick(movie.id);
+                      }}
+                      className="flex items-center justify-center gap-1 py-1.5 rounded text-[10px] sm:text-xs font-bold uppercase bg-neutral-700 text-neutral-300 hover:bg-neutral-600 hover:text-white transition-all"
+                    >
+                      <Info size={12} /> Chi tiết
+                    </button>
+                  </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}
+
+        {/* Render Modal Xem Trailer */}
+        <TrailerModal
+          isOpen={!!trailerMovie}
+          onClose={() => setTrailerMovie(null)}
+          movie={trailerMovie}
+        />
       </div>
     </div>
   );

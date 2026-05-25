@@ -4,9 +4,10 @@ import { movieService } from "../../../services/movieService";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { Ticket, Calendar, ChevronRight } from "lucide-react";
+import { Ticket, Calendar, ChevronRight, Play, Info } from "lucide-react"; 
 import { useApiCall } from "../../../hooks/useApiCall";
 import { LoadingSkeleton } from "../common/LoadingSpinner";
+import TrailerModal from "../common/TrailerModal"; 
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ const HomePage = () => {
   const [activeMovies, setActiveMovies] = useState([]);
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  
+  const [trailerMovie, setTrailerMovie] = useState(null);
 
   const { loading, execute } = useApiCall();
 
@@ -21,7 +24,7 @@ const HomePage = () => {
     const fetchData = async () => {
       await execute(() => movieService.getMovies(), {
         onSuccess: (res) => {
-          const data = res.data;
+          const data = res.data.result || res.data; 
           setActiveMovies(data.filter((m) => m.status === "active"));
           setUpcomingMovies(data.filter((m) => m.status === "upcoming"));
         },
@@ -74,17 +77,17 @@ const HomePage = () => {
   const renderMovieCard = (movie, type) => (
     <div key={movie.id} className="px-3 py-4 h-full">
       <div
-        className="group relative flex flex-col h-full bg-neutral-800 rounded-xl overflow-hidden border border-neutral-800 hover:border-red-500/50 transition-all duration-300 shadow-sm hover:shadow-red-900/20"
+        className="group relative flex flex-col h-full bg-neutral-800 rounded-xl overflow-hidden border border-neutral-800 hover:border-red-500/50 transition-all duration-300 shadow-sm hover:shadow-red-900/20 cursor-pointer"
         onClick={() => handleMovieClick(movie.id)}
       >
-        <div className="relative aspect-[2/3] overflow-hidden cursor-pointer">
+        {/* Ảnh Poster */}
+        <div className="relative aspect-[2/3] overflow-hidden">
           <img
             src={movie.posterUrl}
             alt={movie.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             onError={(e) => {
-              e.target.src =
-                "https://via.placeholder.com/300x450?text=No+Image";
+              e.target.src = "https://via.placeholder.com/300x450?text=No+Image";
             }}
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -93,6 +96,8 @@ const HomePage = () => {
             </div>
           </div>
         </div>
+
+        {/* Nội dung Card */}
         <div className="p-4 flex-grow flex flex-col">
           <h3 className="text-base font-bold text-white line-clamp-1 mb-1 group-hover:text-red-500 transition-colors">
             {movie.title}
@@ -101,21 +106,41 @@ const HomePage = () => {
             <span className="bg-neutral-700 px-1.5 py-0.5 rounded text-[10px]">
               {movie.duration}p
             </span>
-            <span className="truncate max-w-[100px]">{movie.genre}</span>
+            <span className="truncate max-w-[100px]">{movie.genres?.[0]?.name || movie.genre || "Chưa cập nhật"}</span>
           </p>
-          <button
-            className={`w-full py-2.5 rounded text-xs font-bold uppercase tracking-wider mt-auto transition-all ${
-              type === "active"
-                ? "bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-900/20"
-                : "bg-neutral-700 text-neutral-300 hover:bg-neutral-600 hover:text-white"
-            }`}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleMovieClick(movie.id);
-            }}
-          >
-            {type === "active" ? "Đặt vé" : "Chi tiết"}
-          </button>
+
+          {/* Quick Action Buttons */}
+          <div className="mt-auto pt-2 grid grid-cols-2 gap-2">
+            <button
+              disabled={!movie.trailerUrl || movie.trailerUrl === "1"} // Kiểm tra xem có trailer không
+              title={!movie.trailerUrl || movie.trailerUrl === "1" ? "Chưa có trailer" : "Xem Trailer"}
+              onClick={(e) => {
+                e.stopPropagation(); // Tránh click xuyên xuống card
+                if (movie.trailerUrl && movie.trailerUrl !== "1") setTrailerMovie(movie);
+              }}
+              className={`flex items-center justify-center gap-1.5 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all ${
+                movie.trailerUrl && movie.trailerUrl !== "1"
+                  ? "bg-neutral-700 text-white hover:bg-neutral-600"
+                  : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+              }`}
+            >
+              <Play size={14} /> Trailer
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleMovieClick(movie.id);
+              }}
+              className={`flex items-center justify-center gap-1.5 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all ${
+                type === "active"
+                  ? "bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-900/20"
+                  : "bg-neutral-700 text-neutral-300 hover:bg-neutral-600 hover:text-white"
+              }`}
+            >
+              {type === "active" ? "Đặt vé" : <><Info size={14}/> Chi tiết</>}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -145,12 +170,9 @@ const HomePage = () => {
                   className="absolute inset-0 bg-cover bg-center blur-sm opacity-40"
                   style={{ backgroundImage: `url(${movie.posterUrl})` }}
                 ></div>
-
-                {/* Lớp phủ Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/80 to-transparent"></div>
                 <div className="absolute inset-0 bg-gradient-to-r from-neutral-900/90 via-transparent to-transparent"></div>
 
-                {/* Nội dung Banner */}
                 <div className="absolute inset-0 container mx-auto px-4 flex items-center">
                   <div className="flex flex-col md:flex-row items-center gap-8 w-full max-w-6xl mx-auto">
                     <img
@@ -170,7 +192,7 @@ const HomePage = () => {
 
                       <div className="flex items-center justify-center md:justify-start gap-4 text-neutral-300 text-sm">
                         <span className="flex items-center gap-1">
-                          <Calendar size={16} className="text-red-500" /> 2026
+                          <Calendar size={16} className="text-red-500" /> {new Date().getFullYear()}
                         </span>
                         <span>•</span>
                         <span>{movie.duration} phút</span>
@@ -208,10 +230,7 @@ const HomePage = () => {
               className="text-neutral-400 hover:text-red-500 flex items-center gap-1 text-sm font-bold transition-colors group"
             >
               Xem tất cả{" "}
-              <ChevronRight
-                size={16}
-                className="group-hover:translate-x-1 transition-transform"
-              />
+              <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
 
@@ -236,18 +255,13 @@ const HomePage = () => {
               className="text-neutral-400 hover:text-yellow-500 flex items-center gap-1 text-sm font-bold transition-colors group"
             >
               Xem tất cả{" "}
-              <ChevronRight
-                size={16}
-                className="group-hover:translate-x-1 transition-transform"
-              />
+              <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
 
           {upcomingMovies.length > 0 ? (
             <Slider {...listSettings}>
-              {upcomingMovies.map((movie) =>
-                renderMovieCard(movie, "upcoming")
-              )}
+              {upcomingMovies.map((movie) => renderMovieCard(movie, "upcoming"))}
             </Slider>
           ) : (
             <div className="text-center py-12 border border-dashed border-neutral-800 rounded-xl mx-2 bg-neutral-800/20">
@@ -256,6 +270,13 @@ const HomePage = () => {
           )}
         </section>
       </div>
+
+      {/* Render Modal Xem Trailer */}
+      <TrailerModal
+        isOpen={!!trailerMovie}
+        onClose={() => setTrailerMovie(null)}
+        movie={trailerMovie}
+      />
     </div>
   );
 };
