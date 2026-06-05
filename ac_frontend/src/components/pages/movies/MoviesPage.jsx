@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { movieService } from "../../../services/movieService";
-import { useSearchParams, useNavigate } from "react-router-dom"; 
-import { Search, Film, Calendar, Ticket, Play, Info } from "lucide-react"; 
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { Search, Film, Calendar, Ticket, Play, Info, Star } from "lucide-react";
 import { useApiCall } from "../../../hooks/useApiCall";
-import { LoadingSkeleton } from "../common/LoadingSpinner"; 
-import TrailerModal from "../common/TrailerModal"; 
+import { LoadingSkeleton } from "../common/LoadingSpinner";
+import TrailerModal from "../common/TrailerModal";
 
 const MoviesPage = () => {
   const navigate = useNavigate();
@@ -15,9 +15,9 @@ const MoviesPage = () => {
   const urlKeyword = searchParams.get("keyword");
   const urlStatus = searchParams.get("status");
 
-  const [activeTab, setActiveTab] = useState(urlStatus || "all"); 
+  const [activeTab, setActiveTab] = useState(urlStatus || "all");
   const [searchTerm, setSearchTerm] = useState(urlKeyword || "");
-  
+
   // State quản lý Trailer Modal
   const [trailerMovie, setTrailerMovie] = useState(null);
 
@@ -27,7 +27,7 @@ const MoviesPage = () => {
     const fetchMovies = async () => {
       await execute(() => movieService.getMovies(), {
         onSuccess: (res) => {
-          const data = res.data.result || res.data; 
+          const data = res.data.result || res.data;
           setMovies(data);
         },
         showSuccessToast: false
@@ -51,7 +51,7 @@ const MoviesPage = () => {
     }
 
     if (searchTerm) {
-      result = result.filter(m => 
+      result = result.filter(m =>
         m.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -66,7 +66,7 @@ const MoviesPage = () => {
   return (
     <div className="bg-neutral-900 min-h-screen pt-24 pb-12 font-body text-white">
       <div className="max-w-7xl mx-auto px-4">
-        
+
         {/* Page Header */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6 border-b border-neutral-800 pb-6">
           <div>
@@ -90,11 +90,10 @@ const MoviesPage = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${
-                    activeTab === tab.id 
-                      ? "bg-red-600 text-white shadow-lg" 
-                      : "text-neutral-400 hover:text-white"
-                  }`}
+                  className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${activeTab === tab.id
+                    ? "bg-red-600 text-white shadow-lg"
+                    : "text-neutral-400 hover:text-white"
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -104,9 +103,9 @@ const MoviesPage = () => {
             {/* Search Input */}
             <div className="relative group">
               <Search size={18} className="absolute left-3 top-3 text-neutral-500 group-focus-within:text-red-500 transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Tìm tên phim..." 
+              <input
+                type="text"
+                placeholder="Tìm tên phim..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:border-red-500 block pl-10 p-2.5 w-full md:w-64 outline-none transition-all"
@@ -124,7 +123,7 @@ const MoviesPage = () => {
             <p className="text-neutral-400">
               Không tìm thấy phim nào phù hợp với từ khóa "{searchTerm}".
             </p>
-            <button 
+            <button
               onClick={() => { setSearchTerm(""); setActiveTab("all"); }}
               className="mt-4 text-red-500 font-bold hover:underline"
             >
@@ -135,23 +134,23 @@ const MoviesPage = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {filteredMovies.map((movie) => (
               // Bỏ thẻ Link, đổi thành div để các nút bên trong hoạt động đúng chuẩn HTML
-              <div 
-                key={movie.id} 
+              <div
+                key={movie.id}
                 onClick={() => handleMovieClick(movie.id)}
                 className="group relative bg-neutral-800 flex flex-col rounded-xl overflow-hidden border border-neutral-800 hover:border-red-500/50 transition-all duration-300 hover:-translate-y-1 cursor-pointer shadow-lg"
               >
                 {/* Poster */}
                 <div className="aspect-2/3 overflow-hidden relative">
-                  <img 
-                    src={movie.posterUrl} 
+                  <img
+                    src={movie.posterUrl}
                     alt={movie.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    onError={(e) => e.target.src = "https://via.placeholder.com/300x450?text=No+Image"} 
+                    onError={(e) => e.target.src = "https://via.placeholder.com/300x450?text=No+Image"}
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                     <span className="bg-red-600 text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 transform scale-0 group-hover:scale-100 transition-transform">
-                        <Ticket size={16} /> Mua Vé
-                     </span>
+                    <span className="bg-red-600 text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 transform scale-0 group-hover:scale-100 transition-transform">
+                      <Ticket size={16} /> Mua Vé
+                    </span>
                   </div>
                 </div>
 
@@ -164,10 +163,14 @@ const MoviesPage = () => {
                     <span className="flex items-center gap-1">
                       <Calendar size={12} /> {movie.duration}p
                     </span>
-                    <span className={`px-2 py-0.5 rounded ${
-                        movie.status === 'active' ? 'text-red-500 bg-red-500/10' : 'text-yellow-500 bg-yellow-500/10'
-                    }`}>
-                        {movie.status === 'active' ? 'Đang chiếu' : 'Sắp chiếu'}
+                    <span className="flex items-center gap-0.5 text-yellow-400 font-bold text-[11px]">
+                      <Star size={12} className="fill-yellow-400" />
+                      {movie.averageRating > 0 ? movie.averageRating.toFixed(1) : "-"}
+                    </span>
+
+                    <span className={`px-2 py-0.5 rounded ${movie.status === 'active' ? 'text-red-500 bg-red-500/10' : 'text-yellow-500 bg-yellow-500/10'
+                      }`}>
+                      {movie.status === 'active' ? 'Đang chiếu' : 'Sắp chiếu'}
                     </span>
                   </div>
 
@@ -180,11 +183,10 @@ const MoviesPage = () => {
                         e.stopPropagation();
                         if (movie.trailerUrl && movie.trailerUrl !== "1") setTrailerMovie(movie);
                       }}
-                      className={`flex items-center justify-center gap-1 py-1.5 rounded text-[10px] sm:text-xs font-bold uppercase transition-all ${
-                        movie.trailerUrl && movie.trailerUrl !== "1"
-                          ? "bg-neutral-700 text-white hover:bg-neutral-600"
-                          : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
-                      }`}
+                      className={`flex items-center justify-center gap-1 py-1.5 rounded text-[10px] sm:text-xs font-bold uppercase transition-all ${movie.trailerUrl && movie.trailerUrl !== "1"
+                        ? "bg-neutral-700 text-white hover:bg-neutral-600"
+                        : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+                        }`}
                     >
                       <Play size={12} /> Trailer
                     </button>
@@ -212,7 +214,7 @@ const MoviesPage = () => {
           movie={trailerMovie}
         />
       </div>
-    </div>
+    </div >
   );
 };
 

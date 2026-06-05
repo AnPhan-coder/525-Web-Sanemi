@@ -4,10 +4,10 @@ import { movieService } from "../../../services/movieService";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { Ticket, Calendar, ChevronRight, Play, Info } from "lucide-react"; 
+import { Ticket, Calendar, ChevronRight, Play, Info, Star } from "lucide-react";
 import { useApiCall } from "../../../hooks/useApiCall";
 import { LoadingSkeleton } from "../common/LoadingSpinner";
-import TrailerModal from "../common/TrailerModal"; 
+import TrailerModal from "../common/TrailerModal";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const HomePage = () => {
   const [activeMovies, setActiveMovies] = useState([]);
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
-  
+
   const [trailerMovie, setTrailerMovie] = useState(null);
 
   const { loading, execute } = useApiCall();
@@ -24,7 +24,7 @@ const HomePage = () => {
     const fetchData = async () => {
       await execute(() => movieService.getMovies(), {
         onSuccess: (res) => {
-          const data = res.data.result || res.data; 
+          const data = res.data.result || res.data;
           setActiveMovies(data.filter((m) => m.status === "active"));
           setUpcomingMovies(data.filter((m) => m.status === "upcoming"));
         },
@@ -106,6 +106,10 @@ const HomePage = () => {
             <span className="bg-neutral-700 px-1.5 py-0.5 rounded text-[10px]">
               {movie.duration}p
             </span>
+            <span className="flex items-center gap-1 text-yellow-400 font-bold text-[11px]">
+              <Star size={12} className="fill-yellow-400" />
+              {movie.averageRating > 0 ? movie.averageRating.toFixed(1) : "-"}
+            </span>
             <span className="truncate max-w-[100px]">{movie.genres?.[0]?.name || movie.genre || "Chưa cập nhật"}</span>
           </p>
 
@@ -118,11 +122,10 @@ const HomePage = () => {
                 e.stopPropagation(); // Tránh click xuyên xuống card
                 if (movie.trailerUrl && movie.trailerUrl !== "1") setTrailerMovie(movie);
               }}
-              className={`flex items-center justify-center gap-1.5 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all ${
-                movie.trailerUrl && movie.trailerUrl !== "1"
-                  ? "bg-neutral-700 text-white hover:bg-neutral-600"
-                  : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
-              }`}
+              className={`flex items-center justify-center gap-1.5 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all ${movie.trailerUrl && movie.trailerUrl !== "1"
+                ? "bg-neutral-700 text-white hover:bg-neutral-600"
+                : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+                }`}
             >
               <Play size={14} /> Trailer
             </button>
@@ -132,13 +135,12 @@ const HomePage = () => {
                 e.stopPropagation();
                 handleMovieClick(movie.id);
               }}
-              className={`flex items-center justify-center gap-1.5 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all ${
-                type === "active"
-                  ? "bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-900/20"
-                  : "bg-neutral-700 text-neutral-300 hover:bg-neutral-600 hover:text-white"
-              }`}
+              className={`flex items-center justify-center gap-1.5 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all ${type === "active"
+                ? "bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-900/20"
+                : "bg-neutral-700 text-neutral-300 hover:bg-neutral-600 hover:text-white"
+                }`}
             >
-              {type === "active" ? "Đặt vé" : <><Info size={14}/> Chi tiết</>}
+              {type === "active" ? "Đặt vé" : <><Info size={14} /> Chi tiết</>}
             </button>
           </div>
         </div>
@@ -196,6 +198,10 @@ const HomePage = () => {
                         </span>
                         <span>•</span>
                         <span>{movie.duration} phút</span>
+                        <span className="flex items-center gap-1 text-yellow-400 font-bold text-base">
+                          <Star size={16} className="fill-yellow-400" />
+                          {movie.averageRating > 0 ? movie.averageRating.toFixed(1) : "Chưa có đánh giá"}
+                        </span>
                       </div>
 
                       <div className="pt-6">
