@@ -21,6 +21,7 @@ import PaymentReturn from './components/pages/booking/PaymentReturn';
 import PaymentPage from './components/pages/booking/PaymentPage';
 import SnackPage from './components/pages/booking/SnackPage';
 import ManageTrailer from './components/pages/admin/ManageTrailer';
+import ChatBox from './components/pages/common/ChatBox';
 
 
 import Header from './components/Header/Header';
@@ -81,6 +82,7 @@ function App() {
       />
       <ScrollToTop />
       <AppContent />
+      <ChatBox />
     </Router>
   );
 }

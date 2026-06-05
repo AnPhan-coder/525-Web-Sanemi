@@ -21,7 +21,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final String[] PUBLIC_ENDPOINTS = {"/api/movies/**", "/api/seats/**"
             , "/api/showtimes/**", "/api/auth/**", "/api/rooms/**", "/api/bookings/**"
-            , "/api/genres/**", "/api/actors/**", "/api/upload/**", "/uploads/**","/api/reviews/**" };
+            , "/api/genres/**", "/api/actors/**", "/api/upload/**", "/uploads/**","/api/reviews/**","/api/chat/**" };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
