@@ -33,6 +33,9 @@ public class Movies {
     @Column(name = "poster_url")
     String posterUrl;
 
+    @Column(name = "age_rating")
+    String ageRating;
+
     @Enumerated(EnumType.STRING)
     MoviesStatus status;
 

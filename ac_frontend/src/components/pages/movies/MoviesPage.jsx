@@ -141,6 +141,13 @@ const MoviesPage = () => {
               >
                 {/* Poster */}
                 <div className="aspect-2/3 overflow-hidden relative">
+                  {movie.ageRating && (
+                    <div className="absolute top-2 left-2 z-10">
+                       <span className={`px-2 py-1 rounded text-[10px] font-bold text-white border shadow-md ${movie.ageRating.includes('18') ? 'bg-red-700 border-red-600' : movie.ageRating.includes('16') ? 'bg-orange-600 border-orange-500' : 'bg-green-600 border-green-500'}`}>
+                         {movie.ageRating}
+                       </span>
+                    </div>
+                  )}
                   <img
                     src={movie.posterUrl}
                     alt={movie.title}

@@ -174,6 +174,11 @@ const MovieDetail = () => {
               <span className="px-3 py-1 bg-red-600 text-white rounded text-xs font-bold shadow-lg shadow-red-900/20">
                 {movie.status === "active" ? "ĐANG CHIẾU" : "SẮP CHIẾU"}
               </span>
+              {movie.ageRating && (
+                <span className={`px-2 py-1 rounded text-xs font-bold text-white border ${movie.ageRating.includes('18') ? 'bg-red-700 border-red-600' : movie.ageRating.includes('16') ? 'bg-orange-600 border-orange-500' : 'bg-green-600 border-green-500'}`}>
+                  {movie.ageRating}
+                </span>
+              )}
               <span className="flex items-center gap-1 bg-neutral-800 px-3 py-1 rounded border border-neutral-700">
                 <Clock size={14} className="text-red-500" /> {movie.duration}{" "}
                 phút

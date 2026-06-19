@@ -5,25 +5,25 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@Table(name = "rooms")
+@Table(name = "user_reminders")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Rooms {
+public class UserReminders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    String name;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    Users user;
 
-    @Column(name = "total_rows")
-    Integer totalRows;
+    @ManyToOne
+    @JoinColumn(name = "showtime_id")
+    Showtimes showtime;
 
-    @Column(name = "total_cols")
-    Integer totalCols;
-
+    @Column(columnDefinition = "boolean default false")
+    Boolean reminded;
 }
-
-

@@ -82,6 +82,13 @@ const HomePage = () => {
       >
         {/* Ảnh Poster */}
         <div className="relative aspect-[2/3] overflow-hidden">
+          {movie.ageRating && (
+            <div className="absolute top-2 left-2 z-10">
+               <span className={`px-2 py-1 rounded text-[10px] font-bold text-white border shadow-md ${movie.ageRating.includes('18') ? 'bg-red-700 border-red-600' : movie.ageRating.includes('16') ? 'bg-orange-600 border-orange-500' : 'bg-green-600 border-green-500'}`}>
+                 {movie.ageRating}
+               </span>
+            </div>
+          )}
           <img
             src={movie.posterUrl}
             alt={movie.title}
@@ -184,9 +191,16 @@ const HomePage = () => {
                     />
 
                     <div className="flex-1 text-center md:text-left space-y-4">
-                      <span className="inline-block px-3 py-1 bg-red-600 text-white text-xs font-bold rounded uppercase tracking-wider shadow-lg shadow-red-600/20">
-                        Đang chiếu
-                      </span>
+                      <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                        <span className="inline-block px-3 py-1 bg-red-600 text-white text-xs font-bold rounded uppercase tracking-wider shadow-lg shadow-red-600/20">
+                          Đang chiếu
+                        </span>
+                        {movie.ageRating && (
+                          <span className={`inline-block px-3 py-1 text-white text-xs font-bold rounded border ${movie.ageRating.includes('18') ? 'bg-red-700 border-red-600' : movie.ageRating.includes('16') ? 'bg-orange-600 border-orange-500' : 'bg-green-600 border-green-500'}`}>
+                            {movie.ageRating}
+                          </span>
+                        )}
+                      </div>
 
                       <h2 className="text-4xl md:text-6xl font-display font-bold text-white leading-tight drop-shadow-lg line-clamp-2">
                         {movie.title}

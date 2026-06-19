@@ -35,6 +35,9 @@ public class Bookings {
     @Column(name = "total_price")
     Double totalPrice;
 
+    @Column(name = "discount_amount")
+    Double discountAmount;
+
     @Enumerated(EnumType.STRING)
     BookingStatus status;
 

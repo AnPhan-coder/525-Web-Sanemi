@@ -248,7 +248,14 @@ const MovieList = () => {
                         <div className="line-clamp-2">{movie.title}</div>
                       </td>
                       <td className="p-4 text-sm text-neutral-400">
-                        <div className="mb-1">{movie.duration} phút</div>
+                        <div className="mb-1 flex items-center gap-2">
+                          <span>{movie.duration} phút</span>
+                          {movie.ageRating && (
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold text-white border ${movie.ageRating.includes('18') ? 'bg-red-700 border-red-600' : movie.ageRating.includes('16') ? 'bg-orange-600 border-orange-500' : 'bg-green-600 border-green-500'}`}>
+                              {movie.ageRating}
+                            </span>
+                          )}
+                        </div>
                         <div className="text-xs text-neutral-500">
                           {movie.genres &&
                             movie.genres.map((g) => g.name).join(", ")}

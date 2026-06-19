@@ -2,9 +2,11 @@ package vn.edu.stu.Sanemi.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import vn.edu.stu.Sanemi.enums.MembershipLevel;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
@@ -28,6 +30,15 @@ public class Users {
 
     String role;
 
+    @Column(name = "birth_date")
+    LocalDate birthDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "membership_level", columnDefinition = "varchar(255) default 'NORMAL'")
+    @Builder.Default
+    MembershipLevel membershipLevel = MembershipLevel.NORMAL;
+
+
     @Column(columnDefinition = "boolean default true")
     Boolean isActive = true;
 
@@ -39,6 +50,7 @@ public class Users {
 
     @Column(name = "otp_expiration")
     LocalDateTime otpExpiration;
+
 }
 
 

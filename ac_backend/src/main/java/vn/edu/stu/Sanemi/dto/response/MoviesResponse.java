@@ -20,6 +20,7 @@ public class MoviesResponse {
     String director;
     String trailerUrl;
     String posterUrl;
+    String ageRating;
     @Enumerated(EnumType.STRING)
     MoviesStatus status;
 }

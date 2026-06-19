@@ -18,6 +18,7 @@ const MovieForm = ({ movieId, onBack }) => {
     status: "upcoming",
     genreIds: [],
     actorIds: [],
+    ageRating: "P",
   });
 
   const [genreOptions, setGenreOptions] = useState([]);
@@ -54,6 +55,7 @@ const MovieForm = ({ movieId, onBack }) => {
               status: m.status,
               genreIds: m.genres.map((g) => g.id),
               actorIds: m.actors.map((a) => a.id),
+              ageRating: m.ageRating || "P",
             });
             setSelectedGenres(
               m.genres.map((g) => ({ value: g.id, label: g.name }))
@@ -191,6 +193,25 @@ const MovieForm = ({ movieId, onBack }) => {
                 }
                 className="w-full bg-neutral-900 border border-neutral-600 p-3 rounded-lg text-white focus:border-red-500 outline-none transition-colors"
               />
+            </div>
+            <div>
+              <label className="text-neutral-400 text-sm font-bold mb-2 block">
+                Giới hạn độ tuổi
+              </label>
+              <select
+                name="ageRating"
+                value={formData.ageRating}
+                onChange={(e) =>
+                  setFormData({ ...formData, ageRating: e.target.value })
+                }
+                className="w-full bg-neutral-900 border border-neutral-600 p-3 rounded-lg text-white focus:border-red-500 outline-none transition-colors"
+              >
+                <option value="P">P - Mọi lứa tuổi</option>
+                <option value="K">K - Dưới 13 tuổi xem cùng phụ huynh</option>
+                <option value="T13">T13 - Khán giả từ 13 tuổi trở lên</option>
+                <option value="T16">T16 - Khán giả từ 16 tuổi trở lên</option>
+                <option value="T18">T18 - Khán giả từ 18 tuổi trở lên</option>
+              </select>
             </div>
           </div>
 

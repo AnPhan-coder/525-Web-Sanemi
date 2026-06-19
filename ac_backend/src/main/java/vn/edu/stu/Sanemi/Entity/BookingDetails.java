@@ -28,9 +28,6 @@ public class BookingDetails {
 
     Double price;
 
-    @Column(name = "qr_code")
-    String qrCode;
-
     
 }
 

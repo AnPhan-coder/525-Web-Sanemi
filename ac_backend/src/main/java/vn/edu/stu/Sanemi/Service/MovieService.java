@@ -34,6 +34,7 @@ public class MovieService {
                 .director(request.getDirector())
                 .trailerUrl(request.getTrailerUrl())
                 .posterUrl(request.getPosterUrl())
+                .ageRating(request.getAgeRating())
                 .status(request.getStatus())
                 .genres(genres)
                 .actors(actors)
@@ -52,6 +53,7 @@ public class MovieService {
         exMovie.setDirector(request.getDirector());
         exMovie.setTrailerUrl(request.getTrailerUrl());
         exMovie.setPosterUrl(request.getPosterUrl());
+        exMovie.setAgeRating(request.getAgeRating());
         exMovie.setStatus(request.getStatus());
 
         List<Genres> genres = genresRepository.findAllById(request.getGenreIds());
