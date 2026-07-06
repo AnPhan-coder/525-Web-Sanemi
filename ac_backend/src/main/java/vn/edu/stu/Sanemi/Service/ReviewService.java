@@ -8,12 +8,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.stu.Sanemi.Entity.Movies;
+import vn.edu.stu.Sanemi.Entity.ReviewReplies;
 import vn.edu.stu.Sanemi.Entity.Reviews;
 import vn.edu.stu.Sanemi.Entity.Users;
 import vn.edu.stu.Sanemi.Repository.BookingsRepository;
 import vn.edu.stu.Sanemi.Repository.MoviesRepository;
+import vn.edu.stu.Sanemi.Repository.ReviewRepliesRepository;
 import vn.edu.stu.Sanemi.Repository.ReviewRepository;
 import vn.edu.stu.Sanemi.Repository.UsersRepository;
+import vn.edu.stu.Sanemi.dto.request.ReviewReplyRequest;
 import vn.edu.stu.Sanemi.dto.request.ReviewRequest;
 import vn.edu.stu.Sanemi.dto.response.ReviewResponse;
 import vn.edu.stu.Sanemi.enums.BookingStatus;
@@ -30,6 +33,7 @@ public class ReviewService {
     UsersRepository usersRepository;
     MoviesRepository moviesRepository;
     BookingsRepository bookingsRepository;
+    ReviewRepliesRepository reviewRepliesRepository;
 
     @Transactional
     public ReviewResponse createOrUpdateReview(String email, ReviewRequest request) {
@@ -98,6 +102,16 @@ public class ReviewService {
     }
 
     private ReviewResponse mapToResponse(Reviews review) {
+        List<ReviewResponse.ReplyResponse> repliesList = reviewRepliesRepository.findByReviewIdOrderByCreatedAtAsc(review.getId())
+                .stream().map(reply -> ReviewResponse.ReplyResponse.builder()
+                        .id(reply.getId())
+                        .userId(reply.getUser().getId())
+                        .userName(reply.getUser().getName())
+                        .content(reply.getContent())
+                        .createdAt(reply.getCreatedAt())
+                        .build()
+                ).collect(Collectors.toList());
+
         return ReviewResponse.builder()
                 .id(review.getId())
                 .userId(review.getUser().getId())
@@ -109,6 +123,44 @@ public class ReviewService {
                 .content(review.getContent())
                 .createdAt(review.getCreatedAt())
                 .updatedAt(review.getUpdatedAt())
+                .replies(repliesList)
                 .build();
+    }
+
+    @Transactional
+    public ReviewResponse.ReplyResponse createReply(String email, ReviewReplyRequest request) {
+        Users user = usersRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+        Reviews review = reviewRepository.findById(request.getReviewId())
+                .orElseThrow(() -> new RuntimeException("Bình luận gốc không tồn tại"));
+
+        if (request.getContent() == null || request.getContent().trim().isEmpty()) {
+            throw new RuntimeException("Nội dung phản hồi không được để trống!");
+        }
+
+        ReviewReplies reply = ReviewReplies.builder()
+                .review(review)
+                .user(user)
+                .content(request.getContent())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        ReviewReplies savedReply = reviewRepliesRepository.save(reply);
+
+        return ReviewResponse.ReplyResponse.builder()
+                .id(savedReply.getId())
+                .userId(user.getId())
+                .userName(user.getName())
+                .content(savedReply.getContent())
+                .createdAt(savedReply.getCreatedAt())
+                .build();
+    }
+
+    @Transactional
+    public void deleteReply(Integer id) {
+        if (!reviewRepliesRepository.existsById(id)) {
+            throw new RuntimeException("Phản hồi không tồn tại!");
+        }
+        reviewRepliesRepository.deleteById(id);
     }
 }
