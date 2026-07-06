@@ -17,6 +17,7 @@ const MoviesPage = () => {
 
   const [activeTab, setActiveTab] = useState(urlStatus || "all");
   const [searchTerm, setSearchTerm] = useState(urlKeyword || "");
+  const [ageFilter, setAgeFilter] = useState("all");
 
   // State quản lý Trailer Modal
   const [trailerMovie, setTrailerMovie] = useState(null);
@@ -56,8 +57,12 @@ const MoviesPage = () => {
       );
     }
 
+    if (ageFilter !== "all") {
+      result = result.filter(m => m.ageRating && m.ageRating.trim().toUpperCase() === ageFilter.toUpperCase());
+    }
+
     setFilteredMovies(result);
-  }, [activeTab, searchTerm, movies]);
+  }, [activeTab, searchTerm, ageFilter, movies]);
 
   const handleMovieClick = (id) => {
     navigate(`/movie/${id}`);
@@ -100,6 +105,20 @@ const MoviesPage = () => {
               ))}
             </div>
 
+            {/* Bộ lọc độ tuổi */}
+            <select
+              value={ageFilter}
+              onChange={(e) => setAgeFilter(e.target.value)}
+              className="bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:border-red-500 block p-2.5 outline-none transition-all cursor-pointer font-bold"
+            >
+              <option value="all">Phân loại: Tất cả</option>
+              <option value="P">P</option>
+              <option value="K">K</option>
+              <option value="T13">T13</option>
+              <option value="T16">T16</option>
+              <option value="T18">T18</option>
+            </select>
+
             {/* Search Input */}
             <div className="relative group">
               <Search size={18} className="absolute left-3 top-3 text-neutral-500 group-focus-within:text-red-500 transition-colors" />
@@ -121,10 +140,10 @@ const MoviesPage = () => {
           <div className="text-center py-20 bg-neutral-800/30 rounded-xl border border-dashed border-neutral-700">
             <Film size={48} className="mx-auto mb-3 text-neutral-600" />
             <p className="text-neutral-400">
-              Không tìm thấy phim nào phù hợp với từ khóa "{searchTerm}".
+              Không tìm thấy phim nào phù hợp.
             </p>
             <button
-              onClick={() => { setSearchTerm(""); setActiveTab("all"); }}
+              onClick={() => { setSearchTerm(""); setActiveTab("all"); setAgeFilter("all"); }}
               className="mt-4 text-red-500 font-bold hover:underline"
             >
               Xem tất cả phim

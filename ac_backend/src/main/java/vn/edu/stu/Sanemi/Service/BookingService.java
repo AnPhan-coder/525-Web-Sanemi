@@ -17,7 +17,9 @@ import vn.edu.stu.Sanemi.enums.MembershipLevel;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +69,21 @@ public class BookingService {
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
         Showtimes showtime = showtimesRepository.findById(request.getShowtimeId())
                 .orElseThrow(() -> new RuntimeException("Suất chiếu không tồn tại"));
+
+        if (user.getBirthDate() == null) {
+            throw new RuntimeException("Vui lòng cập nhật Ngày sinh trong trang cá nhân trước khi đặt vé!");
+        }
+
+        Movies movie = showtime.getMovie();
+        if (movie != null && movie.getAgeRating() != null) {
+            int requiredAge = getRequiredAge(movie.getAgeRating());
+            if (requiredAge > 0) {
+                int userAge = Period.between(user.getBirthDate(), LocalDate.now()).getYears();
+                if (userAge < requiredAge) {
+                    throw new RuntimeException("Bạn chưa đủ tuổi để xem phim này! Phim yêu cầu từ " + requiredAge + " tuổi trở lên (Tuổi của bạn: " + userAge + ")");
+                }
+            }
+        }
 
         List<Integer> bookedSeatIds = bookingDetailRepository.findBookedSeatIdsByShowtimeId(showtime.getId());
         List<Seats> selectedSeats = seatsRepository.findAllById(request.getSeatIds());
@@ -356,6 +373,21 @@ public class BookingService {
             throw new RuntimeException("Vé không tồn tại!");
         }
         bookingsRepository.deleteById(id);
+    }
+
+    private int getRequiredAge(String ageRating) {
+        if (ageRating == null || ageRating.isEmpty()) {
+            return 0;
+        }
+        String digits = ageRating.replaceAll("\\D+", "");
+        if (digits.isEmpty()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(digits);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }
 
