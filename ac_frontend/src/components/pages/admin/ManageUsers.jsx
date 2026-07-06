@@ -115,7 +115,8 @@ const ManageUsers = () => {
       const sortedData = data.sort((a, b) => new Date(b.bookingTime) - new Date(a.bookingTime));
       
       setHistoryList(sortedData);
-      console.error(error);
+    } catch (err) {
+      console.error("Lỗi lấy lịch sử giao dịch:", err);
     } finally {
       setLoadingHistory(false);
     }

@@ -12,6 +12,7 @@ import vn.edu.stu.Sanemi.dto.request.BookingsRequest;
 import vn.edu.stu.Sanemi.dto.response.SeatResponse;
 import vn.edu.stu.Sanemi.enums.BookingStatus;
 import vn.edu.stu.Sanemi.enums.SeatType;
+import vn.edu.stu.Sanemi.enums.MembershipLevel;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -118,6 +119,24 @@ public class BookingService {
         return basePrice;
     }
 
+    public void markBookingAsPaid(Bookings booking) {
+        if (booking.getStatus() == BookingStatus.paid) {
+            return;
+        }
+        booking.setStatus(BookingStatus.paid);
+        bookingsRepository.save(booking);
+
+        Users user = booking.getUser();
+        if (user != null) {
+            double totalSpent = (user.getTotalSpent() != null ? user.getTotalSpent() : 0.0) + booking.getTotalPrice();
+            user.setTotalSpent(totalSpent);
+            if (totalSpent >= 1000000.0) {
+                user.setMembershipLevel(MembershipLevel.VIP);
+            }
+            usersRepository.save(user);
+        }
+    }
+
     public void processPayment(Integer bookingId) {
         Bookings booking = bookingsRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
@@ -126,8 +145,7 @@ public class BookingService {
             throw new RuntimeException("Đơn hàng này đã được thanh toán rồi!");
         }
 
-        booking.setStatus(BookingStatus.paid);
-        bookingsRepository.save(booking);
+        markBookingAsPaid(booking);
 
         try {
             // Load lại snack (lazy) trước khi gửi mail

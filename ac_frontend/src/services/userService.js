@@ -1,6 +1,9 @@
 import axiosClient from "../api/axiosClient";
 
 export const userService = {
+  getUserById: (id) => {
+    return axiosClient.get(`/users/${id}`);
+  },
   updateProfile: (id, data) => {
     return axiosClient.put(`/users/${id}`, data);
   },

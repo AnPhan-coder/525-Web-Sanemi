@@ -56,6 +56,9 @@ public class Movies {
     List<Actors> actors;
     @Column(name = "average_rating")
     Double averageRating;
+
+    @org.hibernate.annotations.Formula("(SELECT COALESCE(COUNT(*), 0) FROM booking_details bd JOIN bookings b ON bd.booking_id = b.id JOIN showtimes s ON b.showtime_id = s.id WHERE s.movie_id = id AND b.status = 'paid')")
+    Long ticketsSold;
 }
 
 

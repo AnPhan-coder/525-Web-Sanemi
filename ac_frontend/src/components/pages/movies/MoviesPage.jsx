@@ -143,9 +143,9 @@ const MoviesPage = () => {
                 <div className="aspect-2/3 overflow-hidden relative">
                   {movie.ageRating && (
                     <div className="absolute top-2 left-2 z-10">
-                       <span className={`px-2 py-1 rounded text-[10px] font-bold text-white border shadow-md ${movie.ageRating.includes('18') ? 'bg-red-700 border-red-600' : movie.ageRating.includes('16') ? 'bg-orange-600 border-orange-500' : 'bg-green-600 border-green-500'}`}>
-                         {movie.ageRating}
-                       </span>
+                      <span className={`px-2 py-1 rounded text-[10px] font-bold text-white border shadow-md ${movie.ageRating.includes('18') ? 'bg-red-700 border-red-600' : movie.ageRating.includes('16') ? 'bg-orange-600 border-orange-500' : 'bg-green-600 border-green-500'}`}>
+                        {movie.ageRating}
+                      </span>
                     </div>
                   )}
                   <img
@@ -174,6 +174,11 @@ const MoviesPage = () => {
                       <Star size={12} className="fill-yellow-400" />
                       {movie.averageRating > 0 ? movie.averageRating.toFixed(1) : "-"}
                     </span>
+                    {movie.ticketsSold !== undefined && movie.ticketsSold > 0 && (
+                      <span className="text-[10px] text-red-500 font-semibold bg-red-500/10 px-1.5 py-0.5 rounded" title={`${movie.ticketsSold} đã bán`}>
+                        {movie.ticketsSold} Lượt
+                      </span>
+                    )}
 
                     <span className={`px-2 py-0.5 rounded ${movie.status === 'active' ? 'text-red-500 bg-red-500/10' : 'text-yellow-500 bg-yellow-500/10'
                       }`}>

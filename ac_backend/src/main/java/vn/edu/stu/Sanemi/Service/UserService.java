@@ -53,6 +53,14 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
+        if (request.getBirthDate() != null) {
+            user.setBirthDate(request.getBirthDate());
+        }
+
+        if (request.getGender() != null) {
+            user.setGender(request.getGender());
+        }
+
         return usersRepository.save(user);
     }
 
@@ -65,8 +73,12 @@ public class UserService {
         return usersRepository.save(user);
     }
 
+    public Users getUserById(Integer id) {
+        return usersRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+    }
+
     public List<Bookings> getUserBookings(Integer userId) {
         return bookingRepository.findByUserId(userId);
     }
 }
-

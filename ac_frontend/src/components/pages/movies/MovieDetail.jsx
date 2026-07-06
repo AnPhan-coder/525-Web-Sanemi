@@ -194,6 +194,12 @@ const MovieDetail = () => {
                   <span className="text-neutral-400 text-xs font-normal">Chưa có đánh giá</span>
                 )}
               </span>
+              {movie.ticketsSold !== undefined && movie.ticketsSold > 0 && (
+                <span className="flex items-center gap-1 bg-neutral-800 px-3 py-1 rounded border border-neutral-700">
+                  <span className="text-red-500 font-bold">{movie.ticketsSold.toLocaleString("vi-VN")}</span>
+                  <span className="text-neutral-400 text-xs">Vé Đã Bán</span>
+                </span>
+              )}
             </motion.div>
 
             <motion.div variants={fadeUpVariant} className="flex flex-wrap gap-2 justify-center md:justify-start">

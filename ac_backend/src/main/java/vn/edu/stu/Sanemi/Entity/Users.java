@@ -38,8 +38,14 @@ public class Users {
     @Builder.Default
     MembershipLevel membershipLevel = MembershipLevel.NORMAL;
 
+    @Column(name = "total_spent", columnDefinition = "double default 0.0")
+    @Builder.Default
+    Double totalSpent = 0.0;
+
+    String gender;
 
     @Column(columnDefinition = "boolean default true")
+    @Builder.Default
     Boolean isActive = true;
 
     @Column(name = "created_at")
@@ -52,5 +58,3 @@ public class Users {
     LocalDateTime otpExpiration;
 
 }
-
-

@@ -17,6 +17,13 @@ import vn.edu.stu.Sanemi.dto.response.ApiResponse;
 public class UserController {
     UserService userService;
 
+    @GetMapping("/{id}")
+    public ApiResponse<Users> getUserById(@PathVariable Integer id) {
+        return ApiResponse.<Users>builder()
+                .result(userService.getUserById(id))
+                .build();
+    }
+
     @PutMapping("/{id}")
     public ApiResponse<Users> updateUser(@PathVariable Integer id, @RequestBody UserUpdateRequest request) {
         return ApiResponse.<Users>builder()

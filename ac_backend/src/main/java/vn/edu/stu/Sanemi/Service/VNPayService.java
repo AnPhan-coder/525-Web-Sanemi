@@ -129,8 +129,7 @@ public class VNPayService {
 
                 Bookings booking = bookingsRepository.findById(bookingId).orElse(null);
                 if (booking != null && booking.getStatus() == BookingStatus.pending) {
-                    booking.setStatus(BookingStatus.paid);
-                    bookingsRepository.save(booking);
+                    bookingService.markBookingAsPaid(booking);
                     try {
                         bookingService.sendTicketEmail(booking);
                     } catch (Exception e) {
