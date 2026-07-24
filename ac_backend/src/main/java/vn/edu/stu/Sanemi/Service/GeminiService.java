@@ -1,6 +1,5 @@
 package vn.edu.stu.Sanemi.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,8 +42,8 @@ public class GeminiService {
     private HttpServletRequest httpRequest;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper mapper = new ObjectMapper();
 
+    @SuppressWarnings("unchecked")
     public String chatWithGemini(String userMessage, List<Map<String, String>> history, Integer userId) {
         // lấy lịch chiếu tương lai -> context AI
         List<Showtimes> upcomingShows = showtimesRepository.findAll().stream()
@@ -61,10 +60,11 @@ public class GeminiService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm (dd/MM)");
             for (Map.Entry<String, List<Showtimes>> entry : showsByMovie.entrySet()) {
                 String movieTitle = entry.getKey();
+                Integer movieId = entry.getValue().get(0).getMovie().getId();
                 String times = entry.getValue().stream()
                         .map(s -> String.format("%s (ID: %d)", s.getStartTime().format(formatter), s.getId()))
                         .collect(Collectors.joining(", "));
-                csdlStr.append("- **").append(movieTitle).append("**: ").append(times).append("\n");
+                csdlStr.append("- **").append(movieTitle).append("** (Movie ID: ").append(movieId).append("): ").append(times).append("\n");
             }
         }
 
@@ -72,10 +72,14 @@ public class GeminiService {
                 "Dữ liệu lịch chiếu hiện tại:\n" + csdlStr.toString() + "\n" +
                 "Lưu ý quan trọng:\n" +
                 "- Chỉ tư vấn dựa trên danh sách trên.\n" +
+                "- Khi người dùng hỏi về danh sách phim hoặc yêu cầu gợi ý/đề xuất phim chung chung, hãy giới thiệu các phim và BẮT BUỘC chèn thêm thẻ ẩn [REDIRECT_MOVIES] ở cuối câu trả lời để hệ thống tự động đưa họ tới trang danh sách phim (/movies).\n" +
+                "- Khi giới thiệu, trả lời hoặc gợi ý về một bộ phim cụ thể, BẮT BUỘC chèn thêm cú pháp [MOVIE_LINK:id] (với id là Movie ID của bộ phim, ví dụ: [MOVIE_LINK:1]) để hệ thống hiển thị nút xem chi tiết phim cho khách hàng.\n" +
+                "- Khi nói về một suất chiếu cụ thể hoặc khi khách hàng muốn đặt vé cho suất chiếu đó, BẮT BUỘC chèn thêm cú pháp [BOOKING_LINK:showtimeId] (với showtimeId là ID của suất chiếu, ví dụ: [BOOKING_LINK:45]) để khách hàng nhấn nút đặt vé nhanh.\n" +
                 "- Khi khách hàng muốn hỏi ghế trống, BẮT BUỘC dùng tool check_available_seats với showtimeId tương ứng.\n" +
                 "- Khi liệt kê ghế trống, báo rõ tên ghế (code).\n" +
                 "- Khi khách hàng yêu cầu đặt vé, BẮT BUỘC dùng tool book_tickets với showtimeId và danh sách seatCodes (mã ghế, ví dụ: C2, C3).\n" +
-                "- Nếu khách muốn đặt vé nhưng báo lỗi không có userId, hãy nhắc họ đăng nhập trước khi đặt.\n";
+                "- Nếu khách muốn đặt vé nhưng báo lỗi không có userId, hãy nhắc họ đăng nhập trước khi đặt.\n" +
+                "- Không trả lời các câu hỏi bên ngoài rạp phim.\n";
 
         Map<String, Object> tools = buildTools();
 
@@ -120,7 +124,7 @@ public class GeminiService {
                 functionResponse.put("name", funcName);
                 functionResponse.put("response", Map.of("name", funcName, "content", resultData));
                 
-                contents.add(Map.of("role", "function", "parts", List.of(Map.of("functionResponse", functionResponse))));
+                contents.add(Map.of("role", "user", "parts", List.of(Map.of("functionResponse", functionResponse))));
 
                 // Call Gemini Second Time
                 requestBody.put("contents", contents);
@@ -140,12 +144,14 @@ public class GeminiService {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> callApi(Map<String, Object> requestBody, HttpHeaders headers) throws Exception {
         String urlWithKey = apiUrl + "?key=" + apiKey;
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
         return restTemplate.postForObject(urlWithKey, requestEntity, Map.class);
     }
 
+    @SuppressWarnings("unchecked")
     private Object executeFunction(String funcName, Map<String, Object> args, Integer userId) {
         try {
             if ("check_available_seats".equals(funcName)) {
@@ -230,5 +236,35 @@ public class GeminiService {
         Map<String, Object> toolDeclarations = new HashMap<>();
         toolDeclarations.put("functionDeclarations", List.of(checkSeatsTool, bookTicketsTool));
         return toolDeclarations;
+    }
+
+    @SuppressWarnings("unchecked")
+    public String generateVoiceoverScript(String title, String description) {
+        String systemInstruction = "Bạn là người viết kịch bản thuyết minh trailer phim chuyên nghiệp, hấp dẫn, kịch tính.";
+        String userMessage = String.format(
+                "Dựa vào tên phim '%s' và nội dung tóm tắt '%s', hãy viết một đoạn kịch bản thuyết minh trailer ngắn khoảng 45-55 từ để đọc lồng tiếng bằng tiếng Việt, tập trung vào sự hấp dẫn và kịch tính. Chỉ trả về nội dung kịch bản thuyết minh, không chứa tiêu đề, không chứa hướng dẫn âm thanh hay bất kỳ văn bản giải thích nào khác.",
+                title, description != null ? description : ""
+        );
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("systemInstruction", Map.of("parts", List.of(Map.of("text", systemInstruction))));
+        requestBody.put("contents", List.of(
+                Map.of("role", "user", "parts", List.of(Map.of("text", userMessage)))
+        ));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        try {
+            Map<String, Object> response = callApi(requestBody, headers);
+            List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.get("candidates");
+            Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
+            List<Map<String, Object>> resParts = (List<Map<String, Object>>) content.get("parts");
+            return (String) resParts.get(0).get("text");
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi generateVoiceoverScript: " + e.getMessage());
+            // Fallback script if Gemini fails
+            return "Chào mừng bạn đến với bộ phim " + title + ". Một tác phẩm điện ảnh đầy hấp dẫn và lôi cuốn mà bạn không thể bỏ qua tại rạp phim Sanemi. Hãy cùng đón xem ngay hôm nay!";
+        }
     }
 }
