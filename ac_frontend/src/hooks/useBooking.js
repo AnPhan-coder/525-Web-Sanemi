@@ -36,7 +36,65 @@ export const useBooking = (showtimeId) => {
         showSuccessToast: false,
       }
     );
-  }, [showtimeId, navigate]); 
+  }, [showtimeId, navigate]);
+
+  // Auto-select seats from URL query parameters (e.g. ?seats=A1,A2&qty=2)
+  useEffect(() => {
+    if (seats.length > 0) {
+      const queryParams = new URLSearchParams(window.location.search);
+      const querySeats = queryParams.get("seats");
+      if (querySeats) {
+        const seatCodesToSelect = querySeats.split(",").map(s => s.trim().toUpperCase());
+        
+        // Find matching available seats
+        const matchedSeats = seats.filter(s => seatCodesToSelect.includes(s.code?.toUpperCase()) && !s.booked);
+        
+        if (matchedSeats.length > 0) {
+          const qtyParam = queryParams.get("qty");
+          const qty = qtyParam ? parseInt(qtyParam, 10) : 2;
+
+          // Unique sorted rows to determine center row index
+          const allRows = Array.from(new Set(seats.map(s => s.code.charAt(0)))).sort();
+          const midRowIndex = Math.floor(allRows.length / 2);
+
+          // Columns range to determine center column index
+          const allCols = seats.map(s => Number(s.colIndex) || 0);
+          const minCol = allCols.length > 0 ? Math.min(...allCols) : 0;
+          const maxCol = allCols.length > 0 ? Math.max(...allCols) : 0;
+          const midCol = (minCol + maxCol) / 2;
+
+          // Score each matched seat based on distance to center-screen
+          const scoredSeats = matchedSeats.map(s => {
+            const rowCode = s.code.charAt(0);
+            const rowIndex = allRows.indexOf(rowCode);
+            const rowDist = Math.abs(rowIndex - midRowIndex);
+            const colDist = Math.abs((Number(s.colIndex) || 0) - midCol);
+            
+            // Prefer VIP or COUPLE seats if they are in the same general area
+            let typeBonus = 0;
+            if (s.type === "VIP") typeBonus = -0.5;
+            if (s.type === "COUPLE") typeBonus = -0.2;
+
+            const score = rowDist * 100 + colDist + typeBonus;
+            return { seat: s, score };
+          });
+
+          // Sort by score ascending (closest to center of screen first)
+          scoredSeats.sort((a, b) => a.score - b.score);
+
+          // Select top 'qty' seats
+          const selectedSeatsSubset = scoredSeats.slice(0, qty).map(item => item.seat);
+          const seatIdsToSelect = selectedSeatsSubset.map(s => s.id);
+          const seatCodesStr = selectedSeatsSubset.map(s => s.code).join(", ");
+
+          if (seatIdsToSelect.length > 0) {
+            setSelectedSeats(seatIdsToSelect);
+            toast.success(` Đã tự động chọn ${seatIdsToSelect.length} ghế gần trung tâm nhất: ${seatCodesStr}`);
+          }
+        }
+      }
+    }
+  }, [seats]);
 
   const seatsByRow = useMemo(() => {
     const rows = {};
@@ -46,11 +104,11 @@ export const useBooking = (showtimeId) => {
       if (!rows[r]) rows[r] = [];
       rows[r].push(seat);
     });
-    
+
     Object.keys(rows).forEach((k) => {
       rows[k].sort((a, b) => Number(a.colIndex) - Number(b.colIndex));
     });
-    
+
     return Object.keys(rows)
       .sort()
       .reduce((obj, key) => {
@@ -87,7 +145,7 @@ export const useBooking = (showtimeId) => {
       if (seat.type === "COUPLE") {
         const rowCode = seat.code.charAt(0);
         const rowSeats = seatsByRow[rowCode] || [];
-        
+
         const pairSeat = rowSeats.find(
           (s) =>
             s.type === "COUPLE" &&
@@ -95,7 +153,7 @@ export const useBooking = (showtimeId) => {
             Math.abs(Number(s.colIndex) - Number(seat.colIndex)) === 1 &&
             !s.booked
         );
-        
+
         if (pairSeat) {
           seatsToToggle.push(pairSeat.id);
         }
@@ -115,7 +173,7 @@ export const useBooking = (showtimeId) => {
         return prev.filter((id) => !seatsToToggle.includes(id));
       }
     });
-  }, [seatsByRow]); 
+  }, [seatsByRow]);
 
   const handleBookingSubmit = useCallback(async () => {
     if (selectedSeats.length === 0) {
@@ -153,7 +211,7 @@ export const useBooking = (showtimeId) => {
             showtimeId: Number(showtimeId),
             seatIds: selectedSeats,
           });
-          
+
           toast.success("✅ Đặt vé thành công!");
           const bookingData = response.data?.result || response.data;
           if (bookingData && bookingData.id) {

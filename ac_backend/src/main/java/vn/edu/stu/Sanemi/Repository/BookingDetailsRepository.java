@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface BookingDetailsRepository extends JpaRepository<BookingDetails, Integer> {
-    //lay danh sach id dat dat ghe, trang thai != canceled
+    // lay danh sach id dat dat ghe, trang thai != canceled
     @Query("SELECT bd.seat.id FROM BookingDetails bd " +
             "WHERE bd.booking.showtime.id = :showtimeId " +
             "AND bd.booking.status <> 'cancelled'")
@@ -19,6 +19,7 @@ public interface BookingDetailsRepository extends JpaRepository<BookingDetails, 
 
     @Query("SELECT COUNT(bd) FROM BookingDetails bd WHERE bd.booking.showtime.id = :showtimeId AND bd.booking.status <> 'CANCELLED'")
     int countBookedSeatsByShowtimeId(@Param("showtimeId") Integer showtimeId);
+
+    @Query("SELECT bd.booking.showtime.id, COUNT(bd) FROM BookingDetails bd WHERE bd.booking.status <> 'CANCELLED' GROUP BY bd.booking.showtime.id")
+    List<Object[]> countBookedSeatsGroupedByShowtimeId();
 }
-
-

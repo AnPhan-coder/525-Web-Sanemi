@@ -1,14 +1,28 @@
 import React, { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2, Trash2 } from "lucide-react"; 
+import { MessageCircle, X, Send, Bot, User, Loader2, Trash2, Film, Ticket } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import axios from "axios";
 import ReactMarkdown from 'react-markdown';
+import { useNavigate } from "react-router-dom";
 
 const CHAT_STORAGE_KEY = "sanemi_chat_history";
 const CHAT_TIME_KEY = "sanemi_chat_timestamp";
 const EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 giờ 
 
+const preprocessMessage = (text) => {
+    if (!text) return "";
+    let processed = text;
+
+    // Strip action tags from visible message rendering
+    processed = processed.replace(/\[REDIRECT_MOVIES\]/g, "");
+    processed = processed.replace(/\[MOVIE_LINK:\d+\]/g, "");
+    processed = processed.replace(/\[BOOKING_LINK:\d+\]/g, "");
+
+    return processed;
+};
+
 const ChatBox = () => {
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -122,8 +136,58 @@ const ChatBox = () => {
                 { headers }
             );
 
-            const botReply = response.data.result;
-            setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
+            let botReply = response.data.result || "";
+
+            // Detect redirects
+            let targetPath = null;
+
+            if (botReply.includes("[REDIRECT_MOVIES]")) {
+                targetPath = "/movies";
+            } else if (botReply.includes("[MOVIE_LINK:")) {
+                const movieMatch = botReply.match(/\[MOVIE_LINK:(\d+)\]/);
+                if (movieMatch && movieMatch[1]) {
+                    targetPath = `/movie/${movieMatch[1]}`;
+                }
+            } else if (botReply.includes("[BOOKING_LINK:")) {
+                const bookingMatch = botReply.match(/\[BOOKING_LINK:(\d+)\]/);
+                if (bookingMatch && bookingMatch[1]) {
+                    const showtimeId = bookingMatch[1];
+
+                    // Parse quantity from userMessage (default to 1)
+                    let qty = 1;
+                    const qtyRegex = /(\d+)\s*(vé|chỗ|ghế|ticket|seat)/i;
+                    const matchQty = userMessage.match(qtyRegex);
+                    if (matchQty && matchQty[1]) {
+                        qty = parseInt(matchQty[1], 10);
+                    } else {
+                        const lowercaseMsg = userMessage.toLowerCase();
+                        if (lowercaseMsg.includes("một") || lowercaseMsg.includes(" 1 ")) qty = 1;
+                        else if (lowercaseMsg.includes("hai") || lowercaseMsg.includes(" 2 ")) qty = 2;
+                        else if (lowercaseMsg.includes("ba") || lowercaseMsg.includes(" 3 ")) qty = 3;
+                        else if (lowercaseMsg.includes("bốn") || lowercaseMsg.includes(" 4 ")) qty = 4;
+                    }
+
+                    // Extract suggested seats
+                    const seatRegex = /\b[A-Z]\d{1,2}\b/gi;
+                    const matches = botReply.match(seatRegex);
+                    let seatsParam = "";
+                    if (matches && matches.length > 0) {
+                        const uniqueSeats = Array.from(new Set(matches.map(s => s.toUpperCase())));
+                        seatsParam = `?seats=${uniqueSeats.join(",")}&qty=${qty}`;
+                    } else {
+                        seatsParam = `?qty=${qty}`;
+                    }
+                    targetPath = `/booking/${showtimeId}${seatsParam}`;
+                }
+            }
+
+            const cleanedReply = preprocessMessage(botReply);
+            setMessages((prev) => [...prev, { sender: "bot", text: cleanedReply }]);
+
+            // Trigger background redirect if detected
+            if (targetPath) {
+                navigate(targetPath);
+            }
 
             // có chứa link thanh toán thì kích hoạt polling
             const vnpMatch = botReply.match(/vnp_TxnRef=(\d+)_/);
@@ -131,7 +195,7 @@ const ChatBox = () => {
                 setPollingBookingId(vnpMatch[1]);
             }
 
-        } catch (error) { 
+        } catch (error) {
             console.error("Lỗi khi gọi AI:", error);
             setMessages((prev) => [...prev, {
                 sender: "bot",
@@ -209,7 +273,7 @@ const ChatBox = () => {
                                                             if (props.href && props.href.includes('vnpay.vn')) {
                                                                 return (
                                                                     <a {...props} target="_blank" rel="noopener noreferrer"
-                                                                        className="inline-block mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold no-underline transition-colors text-center w-full">
+                                                                        className="inline-block mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold no-underline transition-colors text-center w-full shadow-md shadow-green-950/20">
                                                                         Thanh toán VNPay ngay
                                                                     </a>
                                                                 );
@@ -218,7 +282,7 @@ const ChatBox = () => {
                                                         }
                                                     }}
                                                 >
-                                                    {msg.text}
+                                                    {preprocessMessage(msg.text)}
                                                 </ReactMarkdown>
                                             </div>
                                         )}

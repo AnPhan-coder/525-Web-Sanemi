@@ -16,6 +16,7 @@ import vn.edu.stu.Sanemi.enums.MoviesStatus;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,11 +34,23 @@ public class ShowtimeService {
     public List<ShowtimeResponse> getAllShowtimes() {
         List<Showtimes> list = showtimesRepository.findAllByOrderByStartTimeDesc();
 
+        Map<Integer, Long> bookedMap = bookingDetailsRepository.countBookedSeatsGroupedByShowtimeId().stream()
+                .collect(Collectors.toMap(
+                        arr -> ((Number) arr[0]).intValue(),
+                        arr -> ((Number) arr[1]).longValue(),
+                        (v1, v2) -> v1
+                ));
+
+        Map<Integer, Long> roomSeatsMap = seatsRepository.countSeatsGroupedByRoomId().stream()
+                .collect(Collectors.toMap(
+                        arr -> ((Number) arr[0]).intValue(),
+                        arr -> ((Number) arr[1]).longValue(),
+                        (v1, v2) -> v1
+                ));
+
         return list.stream().map(showtime -> {
-            int booked = bookingDetailsRepository.countBookedSeatsByShowtimeId(showtime.getId());
-
-            int total = seatsRepository.countByRoomIdAndIsActiveTrue(showtime.getRoom().getId());
-
+            int booked = bookedMap.getOrDefault(showtime.getId(), 0L).intValue();
+            int total = roomSeatsMap.getOrDefault(showtime.getRoom().getId(), 0L).intValue();
             int notBooked = total - booked;
 
             return ShowtimeResponse.builder()
