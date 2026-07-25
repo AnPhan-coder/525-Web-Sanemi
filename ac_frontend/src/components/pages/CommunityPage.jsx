@@ -205,13 +205,19 @@ const CommunityPage = () => {
                 </p>
 
                 <Link
-                  to={`/movie/${rv.movieId}`}
-                  className="mt-auto pt-4 border-t border-neutral-700/50 flex items-center gap-3 group"
+                  to={`/movie/${rv.movieId}?reviewId=${rv.id}#reviews`}
+                  className="mt-auto pt-4 border-t border-neutral-700/50 flex items-center justify-between group"
                 >
-                  <img src={rv.moviePoster} alt="" className="w-8 h-10 object-cover rounded border border-neutral-600" />
-                  <span className="text-xs font-bold text-neutral-400 group-hover:text-red-500 transition-colors truncate">
-                    {rv.movieTitle}
-                  </span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <img src={rv.moviePoster} alt="" className="w-8 h-10 object-cover rounded border border-neutral-600 shrink-0" />
+                    <span className="text-xs font-bold text-neutral-400 group-hover:text-red-500 transition-colors truncate">
+                      {rv.movieTitle}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-neutral-500 group-hover:text-red-500 transition-colors shrink-0 pl-2">
+                    <MessageCircle size={14} />
+                    <span>{rv.replies?.length || 0} Phản hồi</span>
+                  </div>
                 </Link>
               </div>
             ))}

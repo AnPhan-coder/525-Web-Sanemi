@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.stu.Sanemi.Service.ReviewService;
+import vn.edu.stu.Sanemi.dto.request.ReviewReplyRequest;
 import vn.edu.stu.Sanemi.dto.request.ReviewRequest;
 import vn.edu.stu.Sanemi.dto.response.ApiResponse;
 import vn.edu.stu.Sanemi.dto.response.ReviewResponse;
@@ -66,6 +67,24 @@ public class ReviewController {
         reviewService.deleteReview(id);
         return ApiResponse.<String>builder()
                 .message("Đã xóa bình luận")
+                .build();
+    }
+
+    @PostMapping("/reply")
+    public ApiResponse<ReviewResponse.ReplyResponse> createReply(@RequestBody ReviewReplyRequest request) {
+        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ApiResponse.<ReviewResponse.ReplyResponse>builder()
+                .result(reviewService.createReply(currentEmail, request))
+                .message("Đã gửi phản hồi")
+                .build();
+    }
+
+    @DeleteMapping("/reply/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<String> deleteReply(@PathVariable Integer id) {
+        reviewService.deleteReply(id);
+        return ApiResponse.<String>builder()
+                .message("Đã xóa phản hồi")
                 .build();
     }
 }

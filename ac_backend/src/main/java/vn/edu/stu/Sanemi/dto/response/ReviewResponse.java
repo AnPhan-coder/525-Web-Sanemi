@@ -26,4 +26,21 @@ public class ReviewResponse {
     
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime updatedAt;
+
+    java.util.List<ReplyResponse> replies;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class ReplyResponse {
+        Integer id;
+        Integer userId;
+        String userName;
+        String content;
+        
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        LocalDateTime createdAt;
+    }
 }
