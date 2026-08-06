@@ -26,7 +26,7 @@ const Header = () => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     } else {
-        setUser(null);
+      setUser(null);
     }
   };
 
@@ -80,7 +80,7 @@ const Header = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (keyword.trim()) {
-      navigate(`/movies?keyword=${encodeURIComponent(keyword.trim())}`); 
+      navigate(`/movies?keyword=${encodeURIComponent(keyword.trim())}`);
       setIsMobileMenuOpen(false);
     }
   };
@@ -106,47 +106,43 @@ const Header = () => {
           <nav className="hidden md:flex items-center gap-8">
             <Link
               to="/"
-              className={`text-sm font-medium uppercase tracking-wide transition-colors ${
-                isActive("/")
-                  ? "text-red-500"
-                  : "text-neutral-400 hover:text-red-400"
-              }`}
+              className={`text-sm font-medium uppercase tracking-wide transition-colors ${isActive("/")
+                ? "text-red-500"
+                : "text-neutral-400 hover:text-red-400"
+                }`}
             >
               Trang chủ
             </Link>
 
             <Link
               to="/schedule"
-              className={`text-sm font-medium uppercase tracking-wide transition-colors ${
-                isActive("/schedule")
-                  ? "text-red-500"
-                  : "text-neutral-400 hover:text-red-400"
-              }`}
+              className={`text-sm font-medium uppercase tracking-wide transition-colors ${isActive("/schedule")
+                ? "text-red-500"
+                : "text-neutral-400 hover:text-red-400"
+                }`}
             >
               Lịch chiếu
             </Link>
 
             <Link
               to="/movies"
-              className={`text-sm font-medium uppercase tracking-wide transition-colors ${
-                isActive("/movies")
-                  ? "text-red-500"
-                  : "text-neutral-400 hover:text-red-400"
-              }`}
+              className={`text-sm font-medium uppercase tracking-wide transition-colors ${isActive("/movies")
+                ? "text-red-500"
+                : "text-neutral-400 hover:text-red-400"
+                }`}
             >
               Phim
             </Link>
             <Link
               to="/community"
-              className={`text-sm font-medium uppercase tracking-wide transition-colors ${
-                isActive("/community")
-                  ? "text-red-500"
-                  : "text-neutral-400 hover:text-red-400"
-              }`}
+              className={`text-sm font-medium uppercase tracking-wide transition-colors ${isActive("/community")
+                ? "text-red-500"
+                : "text-neutral-400 hover:text-red-400"
+                }`}
             >
               Cộng Đồng
             </Link>
-            
+
           </nav>
 
           <div className="flex items-center gap-4">
@@ -183,9 +179,8 @@ const Header = () => {
                   </span>
                   <ChevronDown
                     size={16}
-                    className={`text-neutral-400 transition-transform ${
-                      showDropdown ? "rotate-180" : ""
-                    }`}
+                    className={`text-neutral-400 transition-transform ${showDropdown ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -295,23 +290,21 @@ const Header = () => {
             <nav className="flex flex-col gap-1">
               <Link
                 to="/"
-                className={`px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wide transition-colors ${
-                  isActive("/")
-                    ? "bg-red-500/10 text-red-500"
-                    : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                }`}
+                className={`px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wide transition-colors ${isActive("/")
+                  ? "bg-red-500/10 text-red-500"
+                  : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                  }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Trang chủ
               </Link>
-              
+
               <Link
                 to="/schedule"
-                className={`px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wide transition-colors ${
-                  isActive("/schedule")
-                    ? "bg-red-500/10 text-red-500"
-                    : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                }`}
+                className={`px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wide transition-colors ${isActive("/schedule")
+                  ? "bg-red-500/10 text-red-500"
+                  : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                  }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Lịch chiếu
@@ -319,11 +312,10 @@ const Header = () => {
 
               <Link
                 to="/movies"
-                className={`px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wide transition-colors ${
-                  isActive("/movies")
-                    ? "bg-red-500/10 text-red-500"
-                    : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                }`}
+                className={`px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wide transition-colors ${isActive("/movies")
+                  ? "bg-red-500/10 text-red-500"
+                  : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                  }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Phim

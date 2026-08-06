@@ -9,14 +9,14 @@ const ReviewSection = ({ movieId }) => {
   const [reviews, setReviews] = useState([]);
   const [myReview, setMyReview] = useState({ rating: 0, content: '' });
   const [hoverRating, setHoverRating] = useState(0);
-  
+
   const [activeReplyId, setActiveReplyId] = useState(null);
   const [replyContent, setReplyContent] = useState('');
   const [visibleReviewsCount, setVisibleReviewsCount] = useState(5);
-  
+
   // Lấy user từ localStorage để check quyền
   const user = JSON.parse(localStorage.getItem('user') || 'null');
-  
+
   const { loading: loadingList, execute: fetchList } = useApiCall();
   const { loading: loadingSubmit, execute: submitReview } = useApiCall();
 
@@ -30,7 +30,7 @@ const ReviewSection = ({ movieId }) => {
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const targetReviewId = queryParams.get("reviewId");
-    
+
     if (targetReviewId && reviews.length > 0) {
       const reviewIndex = reviews.findIndex(r => r.id.toString() === targetReviewId);
       if (reviewIndex !== -1) {
@@ -83,7 +83,7 @@ const ReviewSection = ({ movieId }) => {
       toast.warning("Vui lòng đăng nhập để bình luận!");
       return;
     }
-    
+
     if (!myReview.content.trim() && myReview.rating === 0) {
       toast.warning("Vui lòng nhập nội dung hoặc chọn số sao!");
       return;
@@ -188,11 +188,10 @@ const ReviewSection = ({ movieId }) => {
         onClick={() => interactive && setMyReview({ ...myReview, rating: star })}
         onMouseEnter={() => interactive && setHoverRating(star)}
         onMouseLeave={() => interactive && setHoverRating(0)}
-        className={`transition-colors ${!interactive && 'cursor-default'} ${
-          ((interactive ? hoverRating : 0) || ratingValue) >= star 
-            ? 'text-yellow-500' 
-            : 'text-neutral-600'
-        }`}
+        className={`transition-colors ${!interactive && 'cursor-default'} ${((interactive ? hoverRating : 0) || ratingValue) >= star
+          ? 'text-yellow-500'
+          : 'text-neutral-600'
+          }`}
       >
         <Star size={interactive ? 28 : 16} fill="currentColor" />
       </button>
@@ -213,7 +212,7 @@ const ReviewSection = ({ movieId }) => {
             <div className="flex gap-1">{renderStars(myReview.rating, true)}</div>
             <span className="text-xs text-neutral-500 ml-2">(Chỉ dành cho tài khoản đã mua vé)</span>
           </div>
-          
+
           <div className="relative">
             <textarea
               rows="3"
@@ -222,8 +221,8 @@ const ReviewSection = ({ movieId }) => {
               onChange={(e) => setMyReview({ ...myReview, content: e.target.value })}
               className="w-full bg-neutral-800 border border-neutral-700 text-white p-4 rounded-xl focus:border-red-500 outline-none transition-colors resize-none placeholder:text-neutral-500"
             ></textarea>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loadingSubmit}
               className="absolute bottom-3 right-3 bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition-all shadow-lg hover:shadow-red-600/20 disabled:opacity-50"
             >
@@ -252,7 +251,7 @@ const ReviewSection = ({ movieId }) => {
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-1">
                       <div>
-                        <h4 className="font-bold text-white text-sm">{rv.userName|| "Thành viên"}</h4>
+                        <h4 className="font-bold text-white text-sm">{rv.userName || "Thành viên"}</h4>
                         <span className="text-[10px] text-neutral-500">{rv.createdAt}</span>
                       </div>
                       <div className="flex gap-3 items-center">
@@ -260,7 +259,7 @@ const ReviewSection = ({ movieId }) => {
                           <div className="flex gap-0.5">{renderStars(rv.rating, false)}</div>
                         )}
                         {user?.role?.toUpperCase() === 'ADMIN' && (
-                          <button 
+                          <button
                             onClick={() => handleDelete(rv.id)}
                             className="text-neutral-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
                             title="Xóa bình luận"

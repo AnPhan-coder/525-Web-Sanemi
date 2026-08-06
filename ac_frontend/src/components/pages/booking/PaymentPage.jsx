@@ -15,14 +15,15 @@ const PaymentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Snack data passed from SnackPage via navigate state
-  const snacks = location.state?.snacks || [];
-  const snackTotal = location.state?.snackTotal || 0;
-
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [booking, setBooking] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(600); 
+
+  // Snack data passed from SnackPage via navigate state or from fetched booking details
+  const snacks = location.state?.snacks || booking?.snacks || [];
+  const snackTotal = location.state?.snackTotal || booking?.snacks?.reduce((sum, i) => sum + (i.unitPrice * i.quantity), 0) || 0;
+  const ticketTotal = booking?.bookingDetails?.reduce((sum, i) => sum + (i.price || 0), 0) || 0;
+  const [timeLeft, setTimeLeft] = useState(600);
   const timerRef = useRef(null);
 
   const parseDate = (dateInput) => {
@@ -30,7 +31,7 @@ const PaymentPage = () => {
     if (Array.isArray(dateInput)) {
       return new Date(
         dateInput[0],
-        dateInput[1] - 1, 
+        dateInput[1] - 1,
         dateInput[2],
         dateInput[3],
         dateInput[4],
@@ -59,7 +60,7 @@ const PaymentPage = () => {
           if (bookingTime) {
             const now = new Date().getTime();
             const diffInSeconds = Math.floor((now - bookingTime) / 1000);
-            const remaining = 600 - diffInSeconds; 
+            const remaining = 600 - diffInSeconds;
 
             setTimeLeft(remaining > 0 ? remaining : 0);
           }
@@ -99,7 +100,7 @@ const PaymentPage = () => {
 
   const handleCancelBooking = async (isAuto = false) => {
     try {
-      if (!isAuto) setLoading(true); 
+      if (!isAuto) setLoading(true);
 
       if (booking?.status === "PAID") return;
 
@@ -108,7 +109,7 @@ const PaymentPage = () => {
       if (!isAuto) {
         toast.info("Đã hủy giữ ghế.");
         navigate(booking?.showtime ? `/booking/${booking.showtime.id}` : "/");
-      } else {        
+      } else {
         Swal.fire({
           icon: "warning",
           title: "Hết thời gian giữ ghế",
@@ -219,11 +220,10 @@ const PaymentPage = () => {
                 Thanh Toán
               </h2>
               <div
-                className={`flex items-center gap-2 px-3 py-1 rounded border ${
-                  timeLeft < 60
-                    ? "text-red-500 bg-red-500/10 border-red-500/20 animate-pulse"
-                    : "text-yellow-500 bg-yellow-500/10 border-yellow-500/20"
-                }`}
+                className={`flex items-center gap-2 px-3 py-1 rounded border ${timeLeft < 60
+                  ? "text-red-500 bg-red-500/10 border-red-500/20 animate-pulse"
+                  : "text-yellow-500 bg-yellow-500/10 border-yellow-500/20"
+                  }`}
               >
                 <Clock size={18} />{" "}
                 <span className="font-mono font-bold text-lg">
@@ -237,7 +237,7 @@ const PaymentPage = () => {
               <div className="space-y-2 text-sm mb-3">
                 <div className="flex justify-between text-neutral-300">
                   <span>Vé xem phim ({booking?.bookingDetails?.length || 0} vé)</span>
-                  <span>{booking?.totalPrice?.toLocaleString("vi-VN")} đ</span>
+                  <span>{ticketTotal.toLocaleString("vi-VN")} đ</span>
                 </div>
                 {snacks.length > 0 && (
                   <div className="flex justify-between text-neutral-300">
@@ -249,7 +249,7 @@ const PaymentPage = () => {
               <div className="border-t border-neutral-700 pt-3 text-center">
                 <p className="text-neutral-400 text-xs mb-1">Tổng tiền thanh toán</p>
                 <div className="text-3xl font-bold text-yellow-500">
-                  {((booking?.totalPrice || 0) + snackTotal).toLocaleString("vi-VN")} đ
+                  {((booking?.totalPrice || 0)).toLocaleString("vi-VN")} đ
                 </div>
               </div>
             </div>

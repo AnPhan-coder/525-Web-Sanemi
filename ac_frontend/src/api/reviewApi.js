@@ -7,7 +7,7 @@ const reviewApi = {
   getMyReview: (movieId) => axiosClient.get(`/reviews/my/${movieId}`),
   deleteReview: (id) => axiosClient.delete(`/reviews/${id}`),
   createReply: (data) => axiosClient.post('/reviews/reply', data),
-  deleteReply: (id) => axiosClient.delete(`/reviews/reply/${id}`)
+  deleteReply: (id) => axiosClient.delete(`/reviews/reply/${id}`),
 };
 
 export default reviewApi;

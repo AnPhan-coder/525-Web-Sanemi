@@ -1,6 +1,5 @@
 package vn.edu.stu.Sanemi.Repository;
 
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,23 +14,23 @@ import java.util.Optional;
 
 @Repository
 public interface MoviesRepository extends JpaRepository<Movies, String> {
-    boolean existsByTitle(String title);
-    Optional<Movies> findById(Integer movieId);
+        boolean existsByTitle(String title);
 
-    Optional<Movies> findByTitle(String title);
-    @Query("SELECT DISTINCT m FROM Movies m " +
-            "LEFT JOIN m.genres g " +
-            "WHERE (:keyword IS NULL OR m.title LIKE %:keyword%) " +
-            "AND (:status IS NULL OR m.status = :status) " +
-            "AND (:genreId IS NULL OR g.id = :genreId)")
-    List<Movies> searchMovies(
-            @Param("keyword") String keyword,
-            @Param("status") MoviesStatus status,
-            @Param("genreId") Integer genreId
-    );
-    @Query("SELECT m FROM Movies m WHERE m.status = 'active' " +
-            "AND (SELECT COUNT(s) FROM Showtimes s WHERE s.movie.id = m.id AND s.startTime > CURRENT_TIMESTAMP) = 0")
-    List<Movies> findExpiredMovies();
+        Optional<Movies> findById(Integer movieId);
+
+        Optional<Movies> findByTitle(String title);
+
+        @Query("SELECT DISTINCT m FROM Movies m " +
+                        "LEFT JOIN m.genres g " +
+                        "WHERE (:keyword IS NULL OR m.title LIKE %:keyword%) " +
+                        "AND (:status IS NULL OR m.status = :status) " +
+                        "AND (:genreId IS NULL OR g.id = :genreId)")
+        List<Movies> searchMovies(
+                        @Param("keyword") String keyword,
+                        @Param("status") MoviesStatus status,
+                        @Param("genreId") Integer genreId);
+
+        @Query("SELECT m FROM Movies m WHERE m.status = 'active' " +
+                        "AND (SELECT COUNT(s) FROM Showtimes s WHERE s.movie.id = m.id AND s.startTime > CURRENT_TIMESTAMP) = 0")
+        List<Movies> findExpiredMovies();
 }
-
-

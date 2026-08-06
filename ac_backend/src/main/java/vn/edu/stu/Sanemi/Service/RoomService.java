@@ -57,7 +57,8 @@ public class RoomService {
 
                 switch (template) {
                     case "VIP_HALL":
-                        if (r > 3) type = SeatType.VIP;
+                        if (r > 3)
+                            type = SeatType.VIP;
                         break;
 
                     case "COUPLE_SWEET":
@@ -126,5 +127,3 @@ public class RoomService {
         roomRepository.deleteById(id);
     }
 }
-
-

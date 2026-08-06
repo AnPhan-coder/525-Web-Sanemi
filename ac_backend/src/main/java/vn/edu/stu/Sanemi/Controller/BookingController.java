@@ -25,6 +25,7 @@ import java.util.List;
 public class BookingController {
     BookingService bookingService;
     VNPayService vnPayService;
+
     @GetMapping("/{id}")
     public ApiResponse<Bookings> getBookingDetail(@PathVariable Integer id) {
         String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -62,7 +63,7 @@ public class BookingController {
     // Lưu snack vào booking trước khi thanh toán
     @PostMapping("/{id}/snacks")
     public ApiResponse<Bookings> addSnacks(@PathVariable Integer id,
-                                           @RequestBody AddSnacksRequest request) {
+            @RequestBody AddSnacksRequest request) {
         return ApiResponse.<Bookings>builder()
                 .result(bookingService.addSnacks(id, request))
                 .message("Đã thêm bắp nước vào đơn hàng")
@@ -84,6 +85,7 @@ public class BookingController {
                 .message("Đã hủy giữ ghế thành công.")
                 .build();
     }
+
     @PostMapping("/payment/vnpay/{id}")
     public ApiResponse<String> createVNPayUrl(@PathVariable Integer id, HttpServletRequest request) {
         String url = vnPayService.createPaymentUrl(id, request);
@@ -92,6 +94,7 @@ public class BookingController {
                 .message("Tạo link VNPay thành công")
                 .build();
     }
+
     @GetMapping("/payment/vnpay-callback")
     public ApiResponse<Integer> vnpayCallback(HttpServletRequest request) {
         int status = vnPayService.orderReturn(request);
@@ -101,6 +104,3 @@ public class BookingController {
                 .build();
     }
 }
-
-
-

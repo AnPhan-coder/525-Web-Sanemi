@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Upload, Film, CheckCircle, AlertCircle, Search } from "lucide-react";
+import { Upload, Film, CheckCircle, AlertCircle, Search, Sparkles } from "lucide-react";
 import { toast } from "react-toastify";
 import { movieService } from "../../../services/movieService";
 import { useApiCall } from "../../../hooks/useApiCall";
@@ -17,6 +17,11 @@ const ManageTrailer = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null); // "success" | "error"
+  const [isGeneratingVoiceover, setIsGeneratingVoiceover] = useState(false);
+  const [selectedLang, setSelectedLang] = useState("vi");
+  const [playerVersion, setPlayerVersion] = useState(0);
+  const [previewTrailer, setPreviewTrailer] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef(null);
 
   const { execute } = useApiCall();
@@ -34,7 +39,53 @@ const ManageTrailer = () => {
     setFile(null);
     setUploadResult(null);
     setUploadProgress(0);
+    setPlayerVersion(0);
+    setPreviewTrailer(null);
   }, [selectedMovieId, movies]);
+
+  const handleGenerateVoiceover = async () => {
+    if (!selectedMovieId) return;
+
+    setIsGeneratingVoiceover(true);
+    setPreviewTrailer(null);
+    try {
+      const res = await movieService.generateVoiceover(selectedMovieId, selectedLang);
+      const result = res.data?.result;
+      if (!result || !result.trailerUrl) {
+        throw new Error("Không nhận được thuyết minh mới");
+      }
+
+      setPreviewTrailer(result);
+      toast.success("✅ Tạo thuyết minh nháp thành công! Hãy xem thử ở dưới trước khi lưu.");
+    } catch (err) {
+      console.error(err);
+      toast.error("❌ Tạo thuyết minh thất bại: " + (err.response?.data?.message || err.message));
+    } finally {
+      setIsGeneratingVoiceover(false);
+    }
+  };
+
+  const handleConfirmSave = async () => {
+    if (!selectedMovieId || !previewTrailer) return;
+
+    setIsSaving(true);
+    try {
+      await movieService.confirmTrailer(selectedMovieId, previewTrailer.trailerUrl, previewTrailer.languageName);
+      toast.success(`✅ Đã lưu bản thuyết minh (${previewTrailer.languageName}) vào cơ sở dữ liệu!`);
+      setPreviewTrailer(null);
+      setPlayerVersion((v) => v + 1);
+    } catch (err) {
+      console.error(err);
+      toast.error("❌ Không thể lưu bản thuyết minh: " + (err.response?.data?.message || err.message));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelPreview = () => {
+    setPreviewTrailer(null);
+    toast.info("Đã hủy bản lồng tiếng nháp.");
+  };
 
   const handleFileChange = (e) => {
     const picked = e.target.files[0];
@@ -118,7 +169,7 @@ const ManageTrailer = () => {
         {/* Chọn phim */}
         <div className="bg-neutral-800/50 border border-neutral-700 rounded-xl p-5 space-y-4">
           <label className="block text-neutral-300 text-sm font-bold">Chọn phim</label>
-          
+
           <div className="relative">
             <input
               type="text"
@@ -138,11 +189,10 @@ const ManageTrailer = () => {
                 <div
                   key={m.id}
                   onClick={() => setSelectedMovieId(String(m.id))}
-                  className={`p-3 rounded-lg cursor-pointer border transition-all duration-200 flex justify-between items-center ${
-                    selectedMovieId === String(m.id)
-                      ? "bg-red-600/20 border-red-500 text-white"
-                      : "bg-neutral-900 border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-neutral-200"
-                  }`}
+                  className={`p-3 rounded-lg cursor-pointer border transition-all duration-200 flex justify-between items-center ${selectedMovieId === String(m.id)
+                    ? "bg-red-600/20 border-red-500 text-white"
+                    : "bg-neutral-900 border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-neutral-200"
+                    }`}
                 >
                   <span className="font-medium">{m.title}</span>
                   {m.trailerUrl && (
@@ -166,11 +216,93 @@ const ManageTrailer = () => {
                 Trailer hiện tại {!selectedMovie.trailerUrl && "(chưa có)"}
               </p>
               <TrailerPlayer
-                key={selectedMovie.trailerUrl || "no-trailer"}
+                key={`${selectedMovie.id}_${playerVersion}`}
+                movieId={selectedMovie.id}
                 trailerUrl={selectedMovie.trailerUrl}
                 title={selectedMovie.title}
               />
             </div>
+
+            {/* AI Voiceover Generator */}
+            {selectedMovie.trailerUrl && (
+              <div className="bg-neutral-800/50 border border-neutral-700 rounded-xl p-5 space-y-4">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div>
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Sparkles size={16} className="text-amber-400 animate-pulse" />
+                      Tạo Thuyết Minh Tự Động
+                    </h4>
+                    <p className="text-xs text-neutral-500 mt-1 max-w-lg">
+                      Gemini sẽ viết kịch bản tóm tắt hấp dẫn bằng ngôn ngữ được chọn, sau đó Google TTS và FFmpeg sẽ tự động lồng tiếng tương ứng và giảm nhạc nền trailer .
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 w-full md:w-auto">
+                    <select
+                      value={selectedLang}
+                      onChange={(e) => setSelectedLang(e.target.value)}
+                      className="bg-neutral-900 border border-neutral-700 text-white text-xs rounded-lg p-2.5 outline-none focus:border-red-500 transition-all cursor-pointer"
+                    >
+                      <option value="vi">Tiếng Việt</option>
+                      <option value="zh">Tiếng Trung</option>
+                      <option value="ja">Tiếng Nhật</option>
+                      <option value="en">Tiếng Anh</option>
+                    </select>
+
+                    <button
+                      onClick={handleGenerateVoiceover}
+                      disabled={isGeneratingVoiceover}
+                      className="flex-1 md:flex-none px-5 py-2.5 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white rounded-lg font-bold text-xs uppercase tracking-wider disabled:from-neutral-700 disabled:to-neutral-800 disabled:text-neutral-500 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-red-900/20 active:scale-95 whitespace-nowrap"
+                    >
+                      {isGeneratingVoiceover ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4.5 w-4.5 border-t-2 border-white" />
+                          Đang xử lý video...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={14} />
+                          Tạo lồng tiếng
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Newly generated preview card */}
+            {previewTrailer && (
+              <div className="bg-amber-600/10 border border-amber-500/30 rounded-xl p-5 space-y-4">
+                <p className="text-amber-400 text-sm font-bold flex items-center gap-2">
+                  <Sparkles size={16} />
+                  Xem trước bản lồng tiếng mới ({previewTrailer.languageName})
+                </p>
+
+                <TrailerPlayer
+                  key="preview-player"
+                  trailerUrl={previewTrailer.trailerUrl}
+                  title={`${selectedMovie.title} - Preview`}
+                />
+
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={handleCancelPreview}
+                    disabled={isSaving}
+                    className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-lg text-xs font-bold uppercase transition-colors"
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button
+                    onClick={handleConfirmSave}
+                    disabled={isSaving}
+                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-neutral-900 rounded-lg text-xs font-bold uppercase transition-colors flex items-center gap-1.5"
+                  >
+                    {isSaving ? "Đang lưu..." : "Xác nhận Lưu"}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Upload trailer mới */}
             <div className="bg-neutral-800/50 border border-neutral-700 rounded-xl p-5 space-y-4">
@@ -234,11 +366,10 @@ const ManageTrailer = () => {
               <button
                 onClick={handleUpload}
                 disabled={!file || isUploading}
-                className={`w-full py-3 rounded-lg font-bold uppercase tracking-wider transition-all ${
-                  file && !isUploading
-                    ? "bg-red-600 text-white hover:bg-red-700"
-                    : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
-                }`}
+                className={`w-full py-3 rounded-lg font-bold uppercase tracking-wider transition-all ${file && !isUploading
+                  ? "bg-red-600 text-white hover:bg-red-700"
+                  : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
+                  }`}
               >
                 {isUploading ? "Đang upload..." : "Upload Trailer"}
               </button>

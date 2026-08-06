@@ -270,22 +270,6 @@ const MoviesPage = () => {
             )}
           </>
         )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            {visibleCount < filteredMovies.length && (
-              <div className="flex justify-center mt-10">
-                <button
-                  onClick={() => setVisibleCount(prev => prev + 10)}
-                  className="px-6 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-lg border border-neutral-700 transition-all uppercase tracking-wider text-xs shadow-md"
-                >
-                  Xem thêm phim
-                </button>
-              </div>
-            )}
-          </>
-        )}
 
         {/* Render Modal Xem Trailer */}
         <TrailerModal

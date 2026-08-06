@@ -21,7 +21,7 @@ export const userService = {
   getUserBookings: (id) => {
     return axiosClient.get(`/admin/users/${id}/bookings`);
   },
-  getAdminStats: () => {
-    return axiosClient.get("/admin/stats");
+  getAdminStats: (params) => {
+    return axiosClient.get("/admin/stats", { params });
   }
 };

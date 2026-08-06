@@ -15,7 +15,11 @@ public class StatsResponse {
     long totalRevenue;
     long totalTickets;
     long totalUsers;
+    long newUsers;
     List<Map<String, Object>> revenueByDate;
     List<Map<String, Object>> topMovies;
+    List<Map<String, Object>> topMoviesByViewers;
+    List<Map<String, Object>> snacksStats;
+    List<Map<String, Object>> topSeats;
 }
 

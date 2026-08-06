@@ -65,6 +65,20 @@ public class UploadService {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public String uploadLocalFile(File file, String folder, String resourceType) {
+        try {
+            Map<Object, Object> options = ObjectUtils.asMap(
+                    "folder", folder,
+                    "resource_type", resourceType
+            );
+            Map<?, ?> result = cloudinary.uploader().upload(file, options);
+            return (String) result.get("secure_url");
+        } catch (IOException ex) {
+            throw new RuntimeException("Lỗi upload file local lên Cloudinary: " + ex.getMessage());
+        }
+    }
+
     private void validateVideoFile(MultipartFile file) {
         if (file.isEmpty()) throw new RuntimeException("File không được rỗng");
         String contentType = file.getContentType();

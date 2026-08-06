@@ -376,6 +376,7 @@ const MovieDetail = () => {
             <div className="p-1">
               <TrailerPlayer
                 key={trailerOpen ? "open" : "closed"}
+                movieId={movie.id}
                 trailerUrl={movie.trailerUrl}
                 title={movie.title}
               />

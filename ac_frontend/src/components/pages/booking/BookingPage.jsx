@@ -36,8 +36,17 @@ const BookingPage = () => {
         <p className="text-neutral-500 text-sm mt-1">Màn hình phía trước</p>
       </div>
 
-      <div className="w-full flex flex-col items-center mb-10 px-4">
-        <div className="w-full max-w-3xl h-1.5 bg-gradient-to-r from-transparent via-red-600 to-transparent rounded-full shadow-[0_5px_20px_rgba(220,38,38,0.4)]"></div>
+      <div className="w-full flex flex-col items-center mb-12 px-4 relative select-none">
+        <div className="relative w-full max-w-xl">
+          {/* Light projection beam from screen */}
+          <div className="absolute top-1 left-1/2 -translate-x-1/2 w-4/5 h-16 bg-gradient-to-b from-red-600/15 to-transparent blur-md rounded-b-[100px]"></div>
+          
+          {/* Neon Screen Line */}
+          <div className="w-full h-1.5 bg-gradient-to-r from-transparent via-red-500 to-transparent rounded-full shadow-[0_4px_15px_rgba(239,68,68,0.6)]"></div>
+        </div>
+        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] text-red-500/80 mt-3 drop-shadow-[0_2px_4px_rgba(239,68,68,0.3)]">
+          Màn Hình
+        </span>
       </div>
 
       {/* GRID GHẾ */}

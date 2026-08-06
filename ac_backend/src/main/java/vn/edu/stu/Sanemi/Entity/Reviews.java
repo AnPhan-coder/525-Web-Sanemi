@@ -39,4 +39,5 @@ public class Reviews {
 
     @Column(name = "updated_at")
     LocalDateTime updatedAt;
+
 }

@@ -43,4 +43,13 @@ export const movieService = {
       },
     });
   },
+  generateVoiceover: (id, lang = "vi") => {
+    return axiosClient.post(`/movies/${id}/voiceover?lang=${lang}`);
+  },
+  confirmTrailer: (id, url, languageName) => {
+    return axiosClient.post(`/movies/${id}/trailers/confirm?url=${encodeURIComponent(url)}&languageName=${encodeURIComponent(languageName)}`);
+  },
+  getMovieTrailers: (id) => {
+    return axiosClient.get(`/movies/${id}/trailers`);
+  },
 };

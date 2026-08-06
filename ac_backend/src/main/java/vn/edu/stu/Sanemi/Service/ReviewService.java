@@ -15,6 +15,7 @@ import vn.edu.stu.Sanemi.Repository.BookingsRepository;
 import vn.edu.stu.Sanemi.Repository.MoviesRepository;
 import vn.edu.stu.Sanemi.Repository.ReviewRepliesRepository;
 import vn.edu.stu.Sanemi.Repository.ReviewRepository;
+import vn.edu.stu.Sanemi.Repository.ShowtimesRepository;
 import vn.edu.stu.Sanemi.Repository.UsersRepository;
 import vn.edu.stu.Sanemi.dto.request.ReviewReplyRequest;
 import vn.edu.stu.Sanemi.dto.request.ReviewRequest;
@@ -34,6 +35,7 @@ public class ReviewService {
     MoviesRepository moviesRepository;
     BookingsRepository bookingsRepository;
     ReviewRepliesRepository reviewRepliesRepository;
+    ShowtimesRepository showtimesRepository;
 
     @Transactional
     public ReviewResponse createOrUpdateReview(String email, ReviewRequest request) {
@@ -42,11 +44,24 @@ public class ReviewService {
         Movies movie = moviesRepository.findById(request.getMovieId())
                 .orElseThrow(() -> new RuntimeException("Phim không tồn tại"));
 
+        // 1. Kiểm tra xem bộ phim đã có suất chiếu nào hoàn thành chưa
+        boolean hasShowtimeEnded = showtimesRepository.existsByMovieIdAndEndTimeBefore(movie.getId(), LocalDateTime.now());
+        if (!hasShowtimeEnded) {
+            throw new RuntimeException("Phim chưa được chiếu xong suất nào, bạn chưa thể bình luận lúc này!");
+        }
+
+        // 2. Kiểm tra mua vé và phim chiếu xong đối với đánh giá sao (rating)
         if (request.getRating() != null) {
             boolean hasPaidBooking = bookingsRepository.existsByUserIdAndShowtimeMovieIdAndStatus(
                     user.getId(), movie.getId(), BookingStatus.paid);
             if (!hasPaidBooking) {
                 throw new RuntimeException("Bạn cần mua vé xem phim này để có thể đánh giá sao!");
+            }
+
+            boolean hasEndedBooking = bookingsRepository.existsByUserIdAndShowtimeMovieIdAndStatusAndShowtimeEndTimeBefore(
+                    user.getId(), movie.getId(), BookingStatus.paid, LocalDateTime.now());
+            if (!hasEndedBooking) {
+                throw new RuntimeException("Bạn cần mua vé và chờ phim công chiếu để có thể đánh giá cho phim này!");
             }
         }
 
@@ -163,4 +178,5 @@ public class ReviewService {
         }
         reviewRepliesRepository.deleteById(id);
     }
+
 }

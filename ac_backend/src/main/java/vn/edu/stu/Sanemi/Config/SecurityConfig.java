@@ -19,14 +19,15 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final String[] PUBLIC_ENDPOINTS = {"/api/movies/**", "/api/seats/**"
-            , "/api/showtimes/**", "/api/auth/**", "/api/rooms/**", "/api/bookings/**"
-            , "/api/genres/**", "/api/actors/**", "/api/upload/**", "/uploads/**","/api/reviews/**","/api/chat/**" };
+    private final String[] PUBLIC_ENDPOINTS = { "/api/movies/**", "/api/seats/**", "/api/showtimes/**", "/api/auth/**",
+            "/api/rooms/**", "/api/bookings/**", "/api/genres/**", "/api/actors/**", "/api/upload/**", "/uploads/**",
+            "/api/reviews/**", "/api/chat/**" };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -41,8 +42,7 @@ public class SecurityConfig {
                 }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
 
@@ -52,4 +52,3 @@ public class SecurityConfig {
     }
 
 }
-

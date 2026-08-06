@@ -239,12 +239,45 @@ public class GeminiService {
     }
 
     @SuppressWarnings("unchecked")
-    public String generateVoiceoverScript(String title, String description) {
-        String systemInstruction = "Bạn là người viết kịch bản thuyết minh trailer phim chuyên nghiệp, hấp dẫn, kịch tính.";
-        String userMessage = String.format(
-                "Dựa vào tên phim '%s' và nội dung tóm tắt '%s', hãy viết một đoạn kịch bản thuyết minh trailer ngắn khoảng 45-55 từ để đọc lồng tiếng bằng tiếng Việt, tập trung vào sự hấp dẫn và kịch tính. Chỉ trả về nội dung kịch bản thuyết minh, không chứa tiêu đề, không chứa hướng dẫn âm thanh hay bất kỳ văn bản giải thích nào khác.",
-                title, description != null ? description : ""
-        );
+    public String generateVoiceoverScript(String title, String description, String lang) {
+        String systemInstruction;
+        String userMessage;
+        String fallback;
+        
+        switch (lang.toLowerCase()) {
+            case "zh":
+                systemInstruction = "You are a professional movie trailer voiceover script writer. Write a dramatic and exciting script in Chinese (Simplified).";
+                userMessage = String.format(
+                        "Based on movie title '%s' and description '%s', write a short movie trailer narration script of about 60-80 Chinese characters. Focus on excitement. You MUST write the final script in Chinese characters only. Do NOT output any Vietnamese or English words.",
+                        title, description != null ? description : ""
+                );
+                fallback = "欢迎观看电影 " + title + "。这是一部充满魅力与悬疑的杰作，您绝对不容错过。今天就来 Sanemi 影院观赏吧！";
+                break;
+            case "ja":
+                systemInstruction = "You are a professional movie trailer voiceover script writer. Write a dramatic and exciting script in Japanese.";
+                userMessage = String.format(
+                        "Based on movie title '%s' and description '%s', write a short movie trailer narration script of about 80-100 Japanese characters. Focus on excitement. You MUST write the final script in Japanese characters (Hiragana, Katakana, Kanji) only. Do NOT output any Vietnamese or English words.",
+                        title, description != null ? description : ""
+                );
+                fallback = "映画「" + title + "」へようこそ。Sanemi シアターで見逃せない、スリルと感動に満ちた素晴らしい作品です。今すぐご来場ください！";
+                break;
+            case "en":
+                systemInstruction = "You are a professional movie trailer voiceover script writer. Write a dramatic and exciting script in English.";
+                userMessage = String.format(
+                        "Based on movie title '%s' and description '%s', write a short movie trailer narration script of about 45-55 words. Focus on excitement. You MUST write the final script in English only. Do NOT output any Vietnamese words.",
+                        title, description != null ? description : ""
+                );
+                fallback = "Welcome to the movie " + title + ". A thrilling and captivating cinematic masterpiece you cannot miss at Sanemi Cinema. Come and watch it today!";
+                break;
+            default: // vi
+                systemInstruction = "Bạn là người viết kịch bản thuyết minh trailer phim chuyên nghiệp, hấp dẫn, kịch tính.";
+                userMessage = String.format(
+                        "Dựa vào tên phim '%s' và nội dung tóm tắt '%s', hãy viết một đoạn kịch bản thuyết minh trailer ngắn khoảng 45-55 từ để đọc lồng tiếng bằng tiếng Việt, tập trung vào sự hấp dẫn và kịch tính. Chỉ trả về nội dung kịch bản thuyết minh, không chứa tiêu đề, không chứa hướng dẫn âm thanh hay bất kỳ văn bản giải thích nào khác.",
+                        title, description != null ? description : ""
+                );
+                fallback = "Chào mừng bạn đến với bộ phim " + title + ". Một tác phẩm điện ảnh đầy hấp dẫn và lôi cuốn mà bạn không thể bỏ qua tại rạp phim Sanemi. Hãy cùng đón xem ngay hôm nay!";
+                break;
+        }
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("systemInstruction", Map.of("parts", List.of(Map.of("text", systemInstruction))));
@@ -263,8 +296,7 @@ public class GeminiService {
             return (String) resParts.get(0).get("text");
         } catch (Exception e) {
             System.err.println("❌ Lỗi generateVoiceoverScript: " + e.getMessage());
-            // Fallback script if Gemini fails
-            return "Chào mừng bạn đến với bộ phim " + title + ". Một tác phẩm điện ảnh đầy hấp dẫn và lôi cuốn mà bạn không thể bỏ qua tại rạp phim Sanemi. Hãy cùng đón xem ngay hôm nay!";
+            return fallback;
         }
     }
 }

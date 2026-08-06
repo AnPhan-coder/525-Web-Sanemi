@@ -51,9 +51,15 @@ const SnackPage = () => {
     [cart, menu]
   );
 
-  const seatTotal = booking?.totalPrice || 0;
-  const snackTotal = cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  const grandTotal = seatTotal + snackTotal;
+  const seatTotal = useMemo(() => {
+    return booking?.bookingDetails?.reduce((sum, item) => sum + (item.price || 0), 0) || 0;
+  }, [booking]);
+  const snackTotal = useMemo(() => {
+    return cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  }, [cartItems]);
+  const grandTotal = useMemo(() => {
+    return seatTotal + snackTotal;
+  }, [seatTotal, snackTotal]);
 
   const handleAdd = (itemId) => {
     setCart((prev) => ({ ...prev, [itemId]: (prev[itemId] || 0) + 1 }));

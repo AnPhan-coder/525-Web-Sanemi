@@ -96,7 +96,8 @@ public class BookingService {
 
         for (Seats seat : selectedSeats) {
             if (bookedSeatIds.contains(seat.getId())) {
-                throw new RuntimeException("Ghế " + seat.getSeatCode() + " vừa được khách khác đặt. Vui lòng chọn lại!");
+                throw new RuntimeException(
+                        "Ghế " + seat.getSeatCode() + " vừa được khách khác đặt. Vui lòng chọn lại!");
             }
             totalPrice += calculateTicketPrice(showtime, seat);
         }
@@ -242,80 +243,81 @@ public class BookingService {
 
             String subject = "🎟️ Vé điện tử Sanemi: " + movieTitle;
 
-            String content = String.format("""
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
-                        .email-container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-                        .header { background-color: #d32f2f; color: white; padding: 25px; text-align: center; }
-                        .header h2 { margin: 0; font-size: 24px; letter-spacing: 1px; }
-                        .content { padding: 30px; color: #333333; }
-                        .movie-title { font-size: 22px; font-weight: bold; color: #d32f2f; margin-bottom: 5px; }
-                        .cinema-name { font-size: 16px; color: #666; margin-bottom: 20px; }
-                        .info-table { width: 100%%; border-collapse: collapse; margin-top: 10px; }
-                        .info-table td { padding: 12px 5px; border-bottom: 1px dashed #ddd; vertical-align: top; }
-                        .label { font-weight: bold; color: #555; width: 100px; }
-                        .value { font-weight: bold; color: #000; font-size: 15px; }
-                        .qr-section { text-align: center; margin-top: 25px; padding-top: 20px; border-top: 2px solid #f0f0f0; }
-                        .qr-img { border: 5px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-                        .footer { background-color: #333; color: #aaa; text-align: center; padding: 15px; font-size: 12px; }
-                    </style>
-                </head>
-                <body>
-                    <div class="email-container">
-                        <div class="header">
-                            <h2>VÉ ĐIỆN TỬ Sanemi</h2>
-                        </div>
-                        <div class="content">
-                            <p>Xin chào <strong>%s</strong>,</p>
-                            <p>Cảm ơn bạn đã đặt vé. Đây là vé vào cửa của bạn:</p>
-                            
-                            <div style="text-align: center; margin-bottom: 20px;">
-                                <img src="%s" alt="Poster" style="max-width: 100%%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); height: auto; max-height: 250px; object-fit: cover;" />
-                            </div>
+            String content = String.format(
+                    """
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <style>
+                                    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+                                    .email-container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+                                    .header { background-color: #d32f2f; color: white; padding: 25px; text-align: center; }
+                                    .header h2 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+                                    .content { padding: 30px; color: #333333; }
+                                    .movie-title { font-size: 22px; font-weight: bold; color: #d32f2f; margin-bottom: 5px; }
+                                    .cinema-name { font-size: 16px; color: #666; margin-bottom: 20px; }
+                                    .info-table { width: 100%%; border-collapse: collapse; margin-top: 10px; }
+                                    .info-table td { padding: 12px 5px; border-bottom: 1px dashed #ddd; vertical-align: top; }
+                                    .label { font-weight: bold; color: #555; width: 100px; }
+                                    .value { font-weight: bold; color: #000; font-size: 15px; }
+                                    .qr-section { text-align: center; margin-top: 25px; padding-top: 20px; border-top: 2px solid #f0f0f0; }
+                                    .qr-img { border: 5px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+                                    .footer { background-color: #333; color: #aaa; text-align: center; padding: 15px; font-size: 12px; }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="email-container">
+                                    <div class="header">
+                                        <h2>VÉ ĐIỆN TỬ Sanemi</h2>
+                                    </div>
+                                    <div class="content">
+                                        <p>Xin chào <strong>%s</strong>,</p>
+                                        <p>Cảm ơn bạn đã đặt vé. Đây là vé vào cửa của bạn:</p>
 
-                            <div class="movie-title">%s</div>
-                            <div class="cinema-name">%s</div>
-                            
-                            <table class="info-table">
-                                <tr>
-                                    <td class="label">Mã vé:</td>
-                                    <td class="value">#%d</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">Suất chiếu:</td>
-                                    <td class="value">%s</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">Ghế:</td>
-                                    <td class="value" style="color: #d32f2f;">%s</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">Bắp nước:</td>
-                                    <td class="value">%s</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">Tổng tiền:</td>
-                                    <td class="value">%s</td>
-                                </tr>
-                            </table>
+                                        <div style="text-align: center; margin-bottom: 20px;">
+                                            <img src="%s" alt="Poster" style="max-width: 100%%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); height: auto; max-height: 250px; object-fit: cover;" />
+                                        </div>
 
-                            <div class="qr-section">
-                                <p style="margin-bottom: 10px; font-size: 14px; color: #777;">Quét mã này tại quầy soát vé</p>
-                                <img src="%s" alt="QR Code" width="180" height="180" class="qr-img" />
-                            </div>
-                        </div>
-                        <div class="footer">
-                            Vui lòng đến trước giờ chiếu 15 phút.<br>
-                            Chúc bạn xem phim vui vẻ!<br>
-                            Sanemi Team
-                        </div>
-                    </div>
-                </body>
-                </html>
-                """,
+                                        <div class="movie-title">%s</div>
+                                        <div class="cinema-name">%s</div>
+
+                                        <table class="info-table">
+                                            <tr>
+                                                <td class="label">Mã vé:</td>
+                                                <td class="value">#%d</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label">Suất chiếu:</td>
+                                                <td class="value">%s</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label">Ghế:</td>
+                                                <td class="value" style="color: #d32f2f;">%s</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label">Bắp nước:</td>
+                                                <td class="value">%s</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label">Tổng tiền:</td>
+                                                <td class="value">%s</td>
+                                            </tr>
+                                        </table>
+
+                                        <div class="qr-section">
+                                            <p style="margin-bottom: 10px; font-size: 14px; color: #777;">Quét mã này tại quầy soát vé</p>
+                                            <img src="%s" alt="QR Code" width="180" height="180" class="qr-img" />
+                                        </div>
+                                    </div>
+                                    <div class="footer">
+                                        Vui lòng đến trước giờ chiếu 15 phút.<br>
+                                        Chúc bạn xem phim vui vẻ!<br>
+                                        Sanemi Team
+                                    </div>
+                                </div>
+                            </body>
+                            </html>
+                            """,
                     booking.getUser().getName(),
                     moviePoster,
                     movieTitle,
@@ -325,8 +327,7 @@ public class BookingService {
                     seatCodes,
                     snacksInfo,
                     formattedPrice,
-                    qrImageUrl
-            );
+                    qrImageUrl);
 
             emailService.sendEmail(userEmail, subject, content);
 
@@ -364,7 +365,8 @@ public class BookingService {
     }
 
     public List<Bookings> getAllBookings() {
-        return bookingsRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "bookingTime"));
+        return bookingsRepository.findAll(org.springframework.data.domain.Sort
+                .by(org.springframework.data.domain.Sort.Direction.DESC, "bookingTime"));
     }
 
     @Transactional
@@ -390,5 +392,3 @@ public class BookingService {
         }
     }
 }
-
-

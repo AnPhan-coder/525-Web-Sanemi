@@ -28,7 +28,7 @@ public class ChatController {
     public ApiResponse<String> chatWithAI(@RequestBody Map<String, Object> request) {
         String userMessage = (String) request.get("message");
         List<Map<String, String>> history = (List<Map<String, String>>) request.get("history");
-        
+
         // check message
         if (userMessage == null || userMessage.trim().isEmpty()) {
             return ApiResponse.<String>builder()
@@ -41,9 +41,9 @@ public class ChatController {
         String email = null;
         Integer userId = null;
         try {
-            if (SecurityContextHolder.getContext().getAuthentication() != null && 
-                SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
-                !"anonymousUser".equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
+            if (SecurityContextHolder.getContext().getAuthentication() != null &&
+                    SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
+                    !"anonymousUser".equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
                 email = SecurityContextHolder.getContext().getAuthentication().getName();
                 Optional<Users> optUser = usersRepository.findByEmail(email);
                 if (optUser.isPresent()) {

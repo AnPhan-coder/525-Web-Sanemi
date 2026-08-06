@@ -64,6 +64,7 @@ public class AuthService {
         String token = jwtUtils.generateToken(user);
         return new AuthResponse(token, user.getName(), user.getRole(), user.getId());
     }
+
     public Users register(RegisterRequest request) {
         if (usersRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email đã tồn tại!");
@@ -79,20 +80,22 @@ public class AuthService {
 
         return usersRepository.save(newUser);
     }
-    public void forgotPassword(String email){
+
+    public void forgotPassword(String email) {
         Users user = usersRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Email không tồn tại!"));
 
         SecureRandom secureRandom = new SecureRandom();
-        String otp = String.format("%06d", secureRandom.nextInt(999999));        user.setOtpCode(otp);
+        String otp = String.format("%06d", secureRandom.nextInt(999999));
+        user.setOtpCode(otp);
         user.setOtpExpiration(LocalDateTime.now().plusMinutes(5));
         usersRepository.save(user);
         emailService.sendEmail(
                 email,
                 "Mã xác nhận quên mật khẩu - Sanemi",
-                "Mã OTP của bạn là: " + otp + "\nMã này sẽ hết hạn sau 5 phút."
-        );
+                "Mã OTP của bạn là: " + otp + "\nMã này sẽ hết hạn sau 5 phút.");
     }
+
     public void resetPassword(String email, String otp, String newPassword) {
         Users user = usersRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Email không tồn tại!"));
@@ -110,9 +113,11 @@ public class AuthService {
         user.setOtpExpiration(null);
         usersRepository.save(user);
     }
+
     public AuthResponse loginWithGoogle(ExchangeTokenRequest request) {
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(),
+                    new GsonFactory())
                     .setAudience(Collections.singletonList(googleClientId))
                     .build();
 
@@ -150,4 +155,3 @@ public class AuthService {
         }
     }
 }
-

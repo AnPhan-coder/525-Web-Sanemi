@@ -1,6 +1,5 @@
 package vn.edu.stu.Sanemi.dto.request;
 
-
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
@@ -21,5 +20,3 @@ public class SeatRequest {
     SeatType type;
     boolean isActive;
 }
-
-
