@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import CommunityPage from "./components/pages/CommunityPage";
+import CommunityPage from "./components/pages/community/CommunityPage";
 import HomePage from './components/pages/movies/HomePage';
 import LoginPage from './components/pages/auth/LoginPage';
 import MoviesPage from "./components/pages/movies/MoviesPage";

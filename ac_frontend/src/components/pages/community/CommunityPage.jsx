@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axiosClient from "../../api/axiosClient";
-import reviewApi from "../../api/reviewApi";
-import { MessageCircle, Star, Film, Search,ChevronDown, X } from "lucide-react";
-import { useApiCall } from "../../hooks/useApiCall";
-import { LoadingSkeleton } from "../pages/common/LoadingSpinner";
+import axiosClient from "../../../api/axiosClient";
+import reviewApi from "../../../api/reviewApi";
+import { MessageCircle, Star, Film, Search, ChevronDown, X } from "lucide-react";
+import { useApiCall } from "../../../hooks/useApiCall";
+import { LoadingSkeleton } from "../common/LoadingSpinner";
 
 const CommunityPage = () => {
   const [reviews, setReviews] = useState([]);

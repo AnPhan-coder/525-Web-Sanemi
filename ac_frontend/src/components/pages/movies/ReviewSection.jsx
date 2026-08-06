@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Star, MessageCircle, Send, Trash2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
-import reviewApi from '../api/reviewApi';
-import { useApiCall } from '../hooks/useApiCall';
+import reviewApi from '../../../api/reviewApi';
+import { useApiCall } from '../../../hooks/useApiCall';
 
 const ReviewSection = ({ movieId }) => {
   const [reviews, setReviews] = useState([]);
