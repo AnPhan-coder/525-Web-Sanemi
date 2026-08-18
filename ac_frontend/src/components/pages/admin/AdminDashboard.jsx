@@ -55,7 +55,7 @@ const AdminDashboard = () => {
               />
               <div className="my-4 border-t border-neutral-700"></div>
               <SidebarItem
-                label="Thống kê Doanh thu"
+                label="Thống kê"
                 active={activeTab === "stats"}
                 onClick={() => setActiveTab("stats")}
               />
@@ -73,7 +73,7 @@ const AdminDashboard = () => {
             </nav>
 
             <div className="mt-auto pt-8 text-xs text-neutral-500 font-body">
-              Sanemi Admin System <br/> v1.0.2
+              Sanemi Admin System <br /> v1.0.2
             </div>
           </div>
         </aside>
@@ -108,11 +108,10 @@ const AdminDashboard = () => {
 const SidebarItem = ({ label, active, onClick }) => (
   <button
     onClick={onClick}
-    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 font-medium text-sm lg:text-base ${
-      active
-        ? "bg-red-400 text-neutral-900 font-bold shadow-lg shadow-yellow-500/20"
-        : "text-neutral-400 hover:bg-neutral-700 hover:text-white"
-    }`}
+    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 font-medium text-sm lg:text-base ${active
+      ? "bg-red-400 text-neutral-900 font-bold shadow-lg shadow-yellow-500/20"
+      : "text-neutral-400 hover:bg-neutral-700 hover:text-white"
+      }`}
   >
     {label}
   </button>

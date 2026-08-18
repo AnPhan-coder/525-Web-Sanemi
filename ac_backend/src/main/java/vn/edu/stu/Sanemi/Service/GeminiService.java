@@ -10,8 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import vn.edu.stu.Sanemi.Entity.Bookings;
+import vn.edu.stu.Sanemi.Entity.Genres;
+import vn.edu.stu.Sanemi.Entity.Movies;
 import vn.edu.stu.Sanemi.Entity.Showtimes;
+import vn.edu.stu.Sanemi.Entity.SnackItems;
+import vn.edu.stu.Sanemi.Repository.MoviesRepository;
 import vn.edu.stu.Sanemi.Repository.ShowtimesRepository;
+import vn.edu.stu.Sanemi.Repository.SnackItemRepository;
 import vn.edu.stu.Sanemi.dto.request.BookingsRequest;
 import vn.edu.stu.Sanemi.dto.response.SeatResponse;
 
@@ -30,7 +35,13 @@ public class GeminiService {
     private String apiUrl;
 
     @Autowired
+    private MoviesRepository moviesRepository;
+
+    @Autowired
     private ShowtimesRepository showtimesRepository;
+
+    @Autowired
+    private SnackItemRepository snackItemRepository;
 
     @Autowired
     private BookingService bookingService;
@@ -45,41 +56,85 @@ public class GeminiService {
 
     @SuppressWarnings("unchecked")
     public String chatWithGemini(String userMessage, List<Map<String, String>> history, Integer userId) {
-        // lấy lịch chiếu tương lai -> context AI
-        List<Showtimes> upcomingShows = showtimesRepository.findAll().stream()
+        // 1. Lấy toàn bộ danh sách phim từ Local DB
+        List<Movies> allMovies = moviesRepository.findAll();
+        StringBuilder moviesStr = new StringBuilder();
+        if (allMovies.isEmpty()) {
+            moviesStr.append("Hiện chưa có phim nào trong cơ sở dữ liệu.\n");
+        } else {
+            for (Movies m : allMovies) {
+                String genreNames = (m.getGenres() != null && !m.getGenres().isEmpty())
+                        ? m.getGenres().stream().map(Genres::getName).collect(Collectors.joining(", "))
+                        : "Chưa phân loại";
+                moviesStr.append(String.format("- **%s** (ID: %d): Thể loại: %s | Thời lượng: %s phút | Trạng thái: %s | Đạo diễn: %s | Đánh giá: %.1f ⭐\n  Mô tả: %s\n",
+                        m.getTitle(),
+                        m.getId(),
+                        genreNames,
+                        m.getDuration() != null ? m.getDuration() : "N/A",
+                        m.getStatus() != null ? m.getStatus().name() : "N/A",
+                        m.getDirector() != null ? m.getDirector() : "N/A",
+                        m.getAverageRating() != null ? m.getAverageRating() : 0.0,
+                        m.getDescription() != null ? (m.getDescription().length() > 150 ? m.getDescription().substring(0, 150) + "..." : m.getDescription()) : "Không có mô tả"));
+            }
+        }
+
+        // 2. Lấy lịch chiếu từ Local DB
+        List<Showtimes> activeShows = showtimesRepository.findAll().stream()
                 .filter(s -> s.getIsActive() != null && s.getIsActive())
-                .filter(s -> s.getStartTime() != null && s.getStartTime().isAfter(LocalDateTime.now()))
                 .toList();
 
         StringBuilder csdlStr = new StringBuilder();
-        if (upcomingShows.isEmpty()) {
-            csdlStr.append("Hiện tại chưa có lịch chiếu phim nào trong thời gian tới.");
+        if (activeShows.isEmpty()) {
+            csdlStr.append("Hiện tại chưa có lịch chiếu phim nào.\n");
         } else {
-            Map<String, List<Showtimes>> showsByMovie = upcomingShows.stream()
+            Map<String, List<Showtimes>> showsByMovie = activeShows.stream()
+                    .filter(s -> s.getMovie() != null)
                     .collect(Collectors.groupingBy(s -> s.getMovie().getTitle()));
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm (dd/MM)");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm (dd/MM/yyyy)");
             for (Map.Entry<String, List<Showtimes>> entry : showsByMovie.entrySet()) {
                 String movieTitle = entry.getKey();
                 Integer movieId = entry.getValue().get(0).getMovie().getId();
                 String times = entry.getValue().stream()
-                        .map(s -> String.format("%s (ID: %d)", s.getStartTime().format(formatter), s.getId()))
+                        .map(s -> String.format("%s [Phòng: %s, Giá: %,.0f đ, ID: %d]",
+                                s.getStartTime() != null ? s.getStartTime().format(formatter) : "N/A",
+                                s.getRoom() != null ? s.getRoom().getName() : "N/A",
+                                s.getBasePrice() != null ? s.getBasePrice() : 0.0,
+                                s.getId()))
                         .collect(Collectors.joining(", "));
                 csdlStr.append("- **").append(movieTitle).append("** (Movie ID: ").append(movieId).append("): ").append(times).append("\n");
             }
         }
 
-        String systemContext = "Bạn là trợ lý ảo nhiệt tình của rạp phim Sanemi.\n" +
-                "Dữ liệu lịch chiếu hiện tại:\n" + csdlStr.toString() + "\n" +
-                "Lưu ý quan trọng:\n" +
-                "- Chỉ tư vấn dựa trên danh sách trên.\n" +
+        // 3. Lấy danh sách bắp nước / combo từ Local DB
+        List<SnackItems> snacks = snackItemRepository.findByAvailableTrue();
+        StringBuilder snackStr = new StringBuilder();
+        if (snacks.isEmpty()) {
+            snackStr.append("Hiện chưa có sản phẩm bắp nước nào.\n");
+        } else {
+            for (SnackItems item : snacks) {
+                snackStr.append(String.format("- **%s** (%s): %,.0f VNĐ\n",
+                        item.getName(),
+                        item.getCategory() != null ? item.getCategory().name() : "SNACK",
+                        item.getPrice() != null ? item.getPrice() : 0.0));
+            }
+        }
+
+        String systemContext = "Bạn là trợ lý ảo nhiệt tình, thông minh của rạp phim Sanemi.\n" +
+                "DƯỚI ĐÂY LÀ DỮ LIỆU ĐƯỢC LẤY TRỰC TIẾP TỪ CƠ SỞ DỮ LIỆU LOCAL CỦA RẠP:\n\n" +
+                "=== 1. DANH SÁCH PHIM ĐANG CÓ TRONG RẠP ===\n" + moviesStr.toString() + "\n" +
+                "=== 2. LỊCH CHIẾU VÀ SUẤT CHIẾU HIỆN CÓ ===\n" + csdlStr.toString() + "\n" +
+                "=== 3. MENU BẮP NƯỚC & COMBO ===\n" + snackStr.toString() + "\n\n" +
+                "Lưu ý và quy tắc quan trọng:\n" +
+                "- Tư vấn hoàn toàn dựa trên dữ liệu thực tế ở trên.\n" +
                 "- Khi người dùng hỏi về danh sách phim hoặc yêu cầu gợi ý/đề xuất phim chung chung, hãy giới thiệu các phim và BẮT BUỘC chèn thêm thẻ ẩn [REDIRECT_MOVIES] ở cuối câu trả lời để hệ thống tự động đưa họ tới trang danh sách phim (/movies).\n" +
                 "- Khi giới thiệu, trả lời hoặc gợi ý về một bộ phim cụ thể, BẮT BUỘC chèn thêm cú pháp [MOVIE_LINK:id] (với id là Movie ID của bộ phim, ví dụ: [MOVIE_LINK:1]) để hệ thống hiển thị nút xem chi tiết phim cho khách hàng.\n" +
                 "- Khi nói về một suất chiếu cụ thể hoặc khi khách hàng muốn đặt vé cho suất chiếu đó, BẮT BUỘC chèn thêm cú pháp [BOOKING_LINK:showtimeId] (với showtimeId là ID của suất chiếu, ví dụ: [BOOKING_LINK:45]) để khách hàng nhấn nút đặt vé nhanh.\n" +
+                "- Khi khách hàng hỏi về bắp nước hoặc đồ ăn uống tại rạp, báo đúng các món và giá trong mục Menu Bắp Nước.\n" +
                 "- Khi khách hàng muốn hỏi ghế trống, BẮT BUỘC dùng tool check_available_seats với showtimeId tương ứng.\n" +
-                "- Khi liệt kê ghế trống, báo rõ tên ghế (code).\n" +
+                "- Khi liệt kê ghế trống, báo rõ tên ghế (code) và giá vé.\n" +
                 "- Khi khách hàng yêu cầu đặt vé, BẮT BUỘC dùng tool book_tickets với showtimeId và danh sách seatCodes (mã ghế, ví dụ: C2, C3).\n" +
                 "- Nếu khách muốn đặt vé nhưng báo lỗi không có userId, hãy nhắc họ đăng nhập trước khi đặt.\n" +
-                "- Không trả lời các câu hỏi bên ngoài rạp phim.\n";
+                "- Không trả lời các câu hỏi bên ngoài rạp phim Sanemi.\n";
 
         Map<String, Object> tools = buildTools();
 
