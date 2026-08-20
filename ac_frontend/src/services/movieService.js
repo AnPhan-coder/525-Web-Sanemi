@@ -29,7 +29,11 @@ export const movieService = {
     return axiosClient.get("/actors");
   },
   uploadFile: (form) => {
-    return axiosClient.post("/upload", form);
+    return axiosClient.post("/upload", form, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   },
   uploadTrailer: (form, onProgress) => {
     return axiosClient.post("/upload/trailer", form, {

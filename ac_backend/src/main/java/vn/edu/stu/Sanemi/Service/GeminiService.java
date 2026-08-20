@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -52,7 +53,14 @@ public class GeminiService {
     @Autowired
     private HttpServletRequest httpRequest;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = createTimeoutRestTemplate();
+
+    private static RestTemplate createTimeoutRestTemplate() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(10000); 
+        factory.setReadTimeout(15000);    
+        return new RestTemplate(factory);
+    }
 
     @SuppressWarnings("unchecked")
     public String chatWithGemini(String userMessage, List<Map<String, String>> history, Integer userId) {

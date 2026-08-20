@@ -25,7 +25,14 @@ const HomePage = () => {
       await execute(() => movieService.getMovies(), {
         onSuccess: (res) => {
           const data = res.data.result || res.data;
-          const sortedData = [...data].sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
+          const sortedData = [...data].sort((a, b) => {
+            const viewsA = Number(a.ticketsSold) || 0;
+            const viewsB = Number(b.ticketsSold) || 0;
+            if (viewsB !== viewsA) {
+              return viewsB - viewsA;
+            }
+            return (b.averageRating || 0) - (a.averageRating || 0);
+          });
           setActiveMovies(sortedData.filter((m) => m.status === "active"));
           setUpcomingMovies(sortedData.filter((m) => m.status === "upcoming"));
         },

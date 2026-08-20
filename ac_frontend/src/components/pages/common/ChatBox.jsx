@@ -133,7 +133,10 @@ const ChatBox = () => {
                     message: userMessage,
                     history: historyToSend // Gửi lịch sử đã được lọc sạch
                 },
-                { headers }
+                {
+                    headers,
+                    timeout: 15000
+                }
             );
 
             let botReply = response.data.result || "";
@@ -197,9 +200,12 @@ const ChatBox = () => {
 
         } catch (error) {
             console.error("Lỗi khi gọi AI:", error);
+            const isTimeout = error.code === 'ECONNABORTED' || error.message?.toLowerCase().includes('timeout');
             setMessages((prev) => [...prev, {
                 sender: "bot",
-                text: "Xin lỗi, hệ thống AI đang bận. Bạn vui lòng thử lại sau ít phút nhé! 🎬"
+                text: isTimeout
+                    ? " Yêu cầu phản hồi quá lâu . Bạn vui lòng kiểm tra kết nối mạng hoặc thử lại sau nhé!"
+                    : "Xin lỗi, hệ thống AI đang bận. Bạn vui lòng thử lại sau ít phút nhé! "
             }]);
         } finally {
             setIsLoading(false);

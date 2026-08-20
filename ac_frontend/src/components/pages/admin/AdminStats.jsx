@@ -217,7 +217,7 @@ const AdminStats = () => {
           { id: "revenue", label: "Doanh Thu & Vé", icon: DollarSign },
           { id: "viewers", label: "Lượt Xem", icon: Film },
           { id: "snacks", label: "Bắp Nước", icon: Coffee },
-          { id: "seats", label: "Ghế Đặt Nhiều", icon: Grid },
+          { id: "seats", label: "Ghế", icon: Grid },
         ].map((tab) => {
           const Icon = tab.icon;
           return (

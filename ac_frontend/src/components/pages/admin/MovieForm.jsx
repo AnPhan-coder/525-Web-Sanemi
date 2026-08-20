@@ -95,7 +95,7 @@ const MovieForm = ({ movieId, onBack }) => {
     form.append("file", file);
 
     await execute(
-        movieService.uploadFile(form),
+      () => movieService.uploadFile(form),
       {
         onSuccess: (res) => {
           const url = res.result || res.data?.result;
