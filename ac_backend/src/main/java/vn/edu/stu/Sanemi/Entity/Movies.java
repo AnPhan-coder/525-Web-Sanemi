@@ -33,6 +33,9 @@ public class Movies {
     @Column(name = "poster_url")
     String posterUrl;
 
+    @Column(name = "age_rating")
+    String ageRating;
+
     @Enumerated(EnumType.STRING)
     MoviesStatus status;
 
@@ -51,6 +54,11 @@ public class Movies {
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
     List<Actors> actors;
+    @Column(name = "average_rating")
+    Double averageRating;
+
+    @org.hibernate.annotations.Formula("(SELECT COALESCE(COUNT(*), 0) FROM booking_details bd JOIN bookings b ON bd.booking_id = b.id JOIN showtimes s ON b.showtime_id = s.id WHERE s.movie_id = id AND b.status = 'paid')")
+    Long ticketsSold;
 }
 
 

@@ -19,13 +19,15 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final String[] PUBLIC_ENDPOINTS = {"/api/movies/**", "/api/seats/**"
-            , "/api/showtimes/**", "/api/auth/**", "/api/rooms/**", "/api/bookings/**"
-            , "/api/genres/**", "/api/actors/**", "/api/upload/**", "/uploads/**" };
+    private final String[] PUBLIC_ENDPOINTS = { "/api/movies/**", "/api/seats/**", "/api/showtimes/**", "/api/auth/**",
+            "/api/rooms/**", "/api/bookings/**", "/api/genres/**", "/api/actors/**", "/api/upload/**", "/uploads/**",
+            "/api/reviews/**", "/api/chat/**" };
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -33,15 +35,14 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOrigins(List.of("http://localhost:5173")); // Link React
-                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
 
@@ -51,4 +52,3 @@ public class SecurityConfig {
     }
 
 }
-

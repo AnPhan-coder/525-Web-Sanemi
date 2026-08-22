@@ -35,11 +35,17 @@ public class Bookings {
     @Column(name = "total_price")
     Double totalPrice;
 
+    @Column(name = "discount_amount")
+    Double discountAmount;
+
     @Enumerated(EnumType.STRING)
     BookingStatus status;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<BookingDetails> bookingDetails;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<BookingSnacks> snacks;
 }
 
 

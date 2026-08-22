@@ -3,8 +3,6 @@ package vn.edu.stu.Sanemi.Controller;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.stu.Sanemi.Entity.Actors;
 import vn.edu.stu.Sanemi.Repository.ActorsRepository;

@@ -5,7 +5,7 @@
 @theme {
   --font-display: "Montserrat Alternates", sans-serif;
   --font-body: "Be Vietnam Pro", sans-serif;
-  --color-neutral-850: #1f1f1f;
+  --color-neutral-850: #fff;
 }
 
 @layer base {
@@ -15,12 +15,18 @@
     margin: 0;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display font-semibold text-neutral-200;
   }
 }
 
 @layer components {
+
   .slick-prev:before,
   .slick-next:before {
     @apply text-neutral-400;

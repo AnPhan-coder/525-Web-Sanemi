@@ -14,6 +14,7 @@ import java.util.List;
 public interface ShowtimesRepository extends JpaRepository<Showtimes,Integer> {
     List<Showtimes> findAllByOrderByStartTimeDesc();
     Long countByMovieIdAndStartTimeAfter(Integer movieId, LocalDateTime startTime);
+    boolean existsByMovieIdAndEndTimeBefore(Integer movieId, LocalDateTime time);
 
     @Query("SELECT COUNT(s) > 0 FROM Showtimes s WHERE s.room.id = :roomId " +
             "AND (:startTime < s.endTime AND :endTime > s.startTime)")

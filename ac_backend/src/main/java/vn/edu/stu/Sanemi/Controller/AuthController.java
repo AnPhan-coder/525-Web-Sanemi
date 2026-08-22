@@ -24,11 +24,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public ApiResponse<AuthResponse> login(@RequestBody LoginRequest request) {
-            AuthResponse result = authService.login(request);
-            return ApiResponse.<AuthResponse>builder()
+        AuthResponse result = authService.login(request);
+        return ApiResponse.<AuthResponse>builder()
                 .result(result)
                 .build();
     }
+
     @PostMapping("/register")
     public ApiResponse<Users> register(@RequestBody RegisterRequest request) {
         Users result = authService.register(request);
@@ -37,6 +38,7 @@ public class AuthController {
                 .message("Đăng ký thành công!")
                 .build();
     }
+
     @PostMapping("/forgot-password")
     public ApiResponse<String> forgotPassword(@RequestParam String email) {
         authService.forgotPassword(email);
@@ -52,6 +54,7 @@ public class AuthController {
                 .message("Đặt lại mật khẩu thành công!")
                 .build();
     }
+
     @PostMapping("/google")
     public ApiResponse<AuthResponse> loginGoogle(@RequestBody ExchangeTokenRequest request) {
         AuthResponse result = authService.loginWithGoogle(request);
@@ -60,5 +63,3 @@ public class AuthController {
                 .build();
     }
 }
-
-

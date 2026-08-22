@@ -24,9 +24,6 @@ public class Rooms {
     @Column(name = "total_cols")
     Integer totalCols;
 
-    @ManyToOne
-    @JoinColumn(name = "cinema_id")
-    Cinemas cinema;
 }
 
 

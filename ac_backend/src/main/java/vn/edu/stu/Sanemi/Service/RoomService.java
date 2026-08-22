@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.stu.Sanemi.Entity.Cinemas;
+
 import vn.edu.stu.Sanemi.Entity.Rooms;
 import vn.edu.stu.Sanemi.Entity.Seats;
-import vn.edu.stu.Sanemi.Repository.CinemasRepository;
+
 import vn.edu.stu.Sanemi.Repository.RoomRepository;
 import vn.edu.stu.Sanemi.Repository.SeatsRepository;
 import vn.edu.stu.Sanemi.Repository.ShowtimesRepository;
@@ -26,15 +26,13 @@ import java.util.Optional;
 public class RoomService {
     RoomRepository roomRepository;
     SeatsRepository seatsRepository;
-    CinemasRepository cinemasRepository;
+
     ShowtimesRepository showtimesRepository;
 
     @Transactional
     public Rooms createRoom(RoomRequest request) {
-        Cinemas cinemas = cinemasRepository.findById(1).orElseThrow();
         Rooms room = Rooms.builder()
                 .name(request.getName())
-                .cinema(cinemas)
                 .totalCols(request.getTotalCols())
                 .totalRows(request.getTotalRows())
                 .build();
@@ -59,7 +57,8 @@ public class RoomService {
 
                 switch (template) {
                     case "VIP_HALL":
-                        if (r > 3) type = SeatType.VIP;
+                        if (r > 3)
+                            type = SeatType.VIP;
                         break;
 
                     case "COUPLE_SWEET":
@@ -128,5 +127,3 @@ public class RoomService {
         roomRepository.deleteById(id);
     }
 }
-
-

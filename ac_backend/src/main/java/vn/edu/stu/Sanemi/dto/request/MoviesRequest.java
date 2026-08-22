@@ -22,6 +22,7 @@ public class MoviesRequest {
     String director;
     String trailerUrl;
     String posterUrl;
+    String ageRating;
     @Enumerated(EnumType.STRING)
     MoviesStatus status;
     List<Integer> genreIds;
